@@ -1,0 +1,310 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\COMTOOL.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于串口工具"
+FONT 9, "宋体"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "串口工具 1.0 版",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "版权所有 (C) 2005",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "确定",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_COMTOOL_DIALOG DIALOGEX 0, 0, 468, 335
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "小板生产工具(301)"
+MENU IDR_MENU1
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "",IDC_STATIC,12,9,442,43
+    PUSHBUTTON      "退       出",IDC_QUIT,381,26,65,15
+    PUSHBUTTON      "开始",IDC_Send,112,15,61,35
+    RTEXT           "测试端口：",IDC_STATIC_PORT,20,20,40,9
+    COMBOBOX        IDC_COM,22,33,65,77,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,227,280,223,41,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT2,22,151,425,152,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+    PUSHBUTTON      "清空接收数据",IDC_BUTTON2,307,26,65,15
+    EDITTEXT        IDC_EDIT_STATUS,158,72,243,33,ES_MULTILINE | ES_AUTOHSCROLL
+    GROUPBOX        "串口接收数据:",IDC_STATIC,16,137,438,172
+    GROUPBOX        "测试状态显示:",IDC_STATIC,14,57,440,63
+    CONTROL         "",IDC_PIC,"Static",SS_BITMAP,407,73,15,14
+    EDITTEXT        IDC_EDIT1,21,71,132,34,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_SETTINGS DIALOGEX 0, 0, 441, 222
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "参数设置"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "温度采样最大值：",IDC_STATIC,49,72,67,8
+    EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MAX,138,66,160,14,ES_AUTOHSCROLL
+    LTEXT           "温度采样最小值:",IDC_STATIC,49,104,60,8
+    EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MIN,138,98,160,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,226,192,66,14
+    PUSHBUTTON      "退出",IDOK,332,192,66,14
+    LTEXT           "RSSI信号(负值):",IDC_STATIC,50,131,59,8
+    EDITTEXT        IDC_EDIT_RSSI_VALUE,137,128,160,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_TESTRESULT_QUERY DIALOGEX 0, 0, 459, 263
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "测试结果"
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    CONTROL         "List1",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_AUTOARRANGE | WS_BORDER | WS_TABSTOP,10,10,433,114,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "下一页",IDC_BUTTON_NEXT,173,128,50,14
+    PUSHBUTTON      "上一页",IDC_BUTTON_PREVIOUS,108,128,50,14
+    GROUPBOX        "测试结果信息:",IDC_STATIC,10,145,438,102
+    LTEXT           "小板SN:",IDC_STATIC,28,158,43,14
+    EDITTEXT        IDC_EDIT_SN,86,155,123,14,ES_AUTOHSCROLL
+    LTEXT           "ADC:",IDC_STATIC,28,206,43,14
+    EDITTEXT        IDC_EDIT_ADC,86,203,123,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "测试时间:",IDC_STATIC,27,182,43,14
+    EDITTEXT        IDC_EDIT_TIME,85,180,123,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "删除当前记录",IDC_BUTTON_DEL,240,129,72,14,WS_DISABLED
+    EDITTEXT        IDC_EDIT_PAGE_STATUS,14,128,81,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "刷新",IDC_LIST_ALL,389,130,50,14
+    PUSHBUTTON      "查询",IDC_SEARCH_BUTTON,221,155,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"
+        BEGIN
+            VALUE "FileDescription", "COMTOOL Microsoft 基础类应用程序"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "COMTOOL"
+            VALUE "LegalCopyright", "版权所有 (C) 2005"
+            VALUE "OriginalFilename", "COMTOOL.EXE"
+            VALUE "ProductName", "COMTOOL 应用程序"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_COMTOOL_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 454
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 323
+    END
+
+    IDD_DIALOG_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 434
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+
+    IDD_DIALOG_TESTRESULT_QUERY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 448
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 255
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "设置"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "测试选项设置",                      ID_FILE_SETTINGS
+        MENUITEM "测试结果查询",                      ID_Menu_TEST_RESULT_QUERY
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_COMTOOL_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_TESTRESULT_QUERY AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP2             BITMAP                  "res\\bitmap2.bmp"
+
+IDB_BITMAP3             BITMAP                  "res\\bitmap3.bmp"
+
+IDB_BITMAP4             BITMAP                  "res\\bitmap4.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ABOUTBOX            "关于 COMTOOL(&A)..."
+END
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
