@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by COMTOOL.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 COMTOOL.rc 使用
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
@@ -43,7 +43,10 @@
 #define IDC_BUTTON2                     1038
 #define IDC_EDIT3                       1039
 #define IDC_EDIT_SN                     1039
-#define IDC_EDIT_ADC_SAMPLE_VALUE_MIN   1039
+#define IDC_EDIT_STEP                   1040
+#define IDC_EDIT_RX_RSSI                1041
+#define IDC_EDIT_TX_RSSI                1042
+#define IDC_EDIT_TX_RSSI2               1043
 #define IDC_EDIT_STATUS                 1046
 #define IDC_EDIT_TEST_FREQ_SETTING      1047
 #define IDC_EDIT_ADC_SAMPLE_VALUE_MAX   1048
@@ -59,16 +62,20 @@
 #define IDC_EDIT_TIME                   1060
 #define IDC_BUTTON_DEL                  1061
 #define IDC_CHECK_RFID_SN               1062
+#define IDC_CHECK_STEP                  1062
 #define IDC_EDIT_PAGE_STATUS            1063
 #define IDC_STATIC_PORT                 1066
 #define IDC_BUTTON1                     1067
 #define IDC_RFID_READ                   1067
+#define IDC_SEARCH_BUTTON               1067
 #define IDC_STATIC_RF                   1068
 #define IDC_STATIC_RFPORT               1068
 #define IDC_EDIT_RFEPC                  1069
 #define IDC_EDIT_WORK_FREQ              1069
 #define IDC_CHECK1                      1070
 #define IDC_EDIT_WORK_FREQ_SETTING      1071
+#define IDC_LIST_ALL                    1072
+#define IDC_EDIT_ADC_SAMPLE_VALUE_MIN   1075
 #define ID_FILE_SETTINGS                32771
 #define ID_Menu                         32772
 #define ID_Menu_TEST_RESULT_QUERY       32773
@@ -77,9 +84,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1072
+#define _APS_NEXT_CONTROL_VALUE         1076
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

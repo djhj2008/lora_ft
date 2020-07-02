@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (Simplified, PRC) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -66,6 +66,7 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\COMTOOL.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -104,9 +105,8 @@ BEGIN
     EDITTEXT        IDC_EDIT1,237,291,207,15,ES_AUTOHSCROLL | NOT WS_VISIBLE
     GROUPBOX        "串口接收数据:",IDC_STATIC,238,75,213,229
     GROUPBOX        "测试状态显示:",IDC_STATIC,14,75,213,229
-    COMBOBOX        IDC_COM_RFID,98,33,65,77,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "RFID读取SN",IDC_RFID_READ,170,31,65,14
-    LTEXT           "RF端口:",IDC_STATIC_RFPORT,101,20,40,9
+    LTEXT           "计步器:",IDC_STATIC_RFPORT,101,20,40,9
+    EDITTEXT        IDC_EDIT_STEP,101,32,121,14,ES_AUTOHSCROLL | ES_READONLY
 END
 
 IDD_DIALOG_SETTINGS DIALOGEX 0, 0, 441, 222
@@ -116,18 +116,20 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "测试频率:",IDC_STATIC,49,22,60,8
     EDITTEXT        IDC_EDIT_TEST_FREQ_SETTING,138,18,160,14,ES_AUTOHSCROLL
-    LTEXT           "ADC采样最大值：",IDC_STATIC,49,72,60,8
+    LTEXT           "ADC采样最大值：",IDC_STATIC,49,71,60,8
     EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MAX,138,66,160,14,ES_AUTOHSCROLL
-    LTEXT           "ADC采样最小值:",IDC_STATIC,49,104,60,8
-    EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MIN,138,98,160,14,ES_AUTOHSCROLL
-    LTEXT           "关机电流最大值:",IDC_STATIC,49,169,60,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_SHUTDOWN_CURRENT_VALUE_MAX,138,163,160,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    LTEXT           "ADC采样最小值",IDC_STATIC,49,97,60,8
     PUSHBUTTON      "保存",IDC_BUTTON_SAVE,226,192,66,14
     PUSHBUTTON      "退出",IDOK,332,192,66,14
-    LTEXT           "RFID保存SN:",IDC_STATIC,52,134,60,8,NOT WS_VISIBLE
-    CONTROL         "支持RFID读写SN",IDC_CHECK_RFID_SN,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,141,131,157,10
     LTEXT           "工作频率通道",IDC_STATIC,51,45,69,15
     EDITTEXT        IDC_EDIT_WORK_FREQ_SETTING,138,42,160,14,ES_AUTOHSCROLL
+    CONTROL         "支持计步器",IDC_CHECK_STEP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,125,157,10
+    LTEXT           "计步器功能",IDC_STATIC,52,126,60,8
+    LTEXT           "TX Rssi",IDC_STATIC,53,154,24,8
+    LTEXT           "RX Rssi",IDC_STATIC,185,154,24,8
+    EDITTEXT        IDC_EDIT_RX_RSSI,218,150,71,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TX_RSSI,88,151,71,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MIN,138,94,161,14,ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_TESTRESULT_QUERY DIALOGEX 0, 0, 459, 263
@@ -141,7 +143,7 @@ BEGIN
     PUSHBUTTON      "上一页",IDC_BUTTON_PREVIOUS,108,128,50,14
     GROUPBOX        "测试结果信息:",IDC_STATIC,10,145,438,102
     LTEXT           "小板SN:",IDC_STATIC,28,158,43,14
-    EDITTEXT        IDC_EDIT_SN,86,155,123,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_SN,86,155,123,14,ES_AUTOHSCROLL
     LTEXT           "RTC:",IDC_STATIC,28,183,26,14
     EDITTEXT        IDC_EDIT_RTC,86,183,123,14,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "ADC:",IDC_STATIC,28,206,43,14
@@ -154,8 +156,10 @@ BEGIN
     EDITTEXT        IDC_EDIT_TIME,298,229,123,14,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "删除当前记录",IDC_BUTTON_DEL,240,129,72,14,WS_DISABLED
     EDITTEXT        IDC_EDIT_PAGE_STATUS,14,128,81,14,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "工作频率:",IDC_STATIC,228,159,43,14,SS_NOPREFIX | NOT WS_VISIBLE
-    EDITTEXT        IDC_EDIT_WORK_FREQ,298,155,123,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE
+    LTEXT           "工作频率:",IDC_STATIC,228,187,43,14,SS_NOPREFIX | NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_WORK_FREQ,298,185,123,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE
+    PUSHBUTTON      "查询",IDC_SEARCH_BUTTON,223,155,50,14
+    PUSHBUTTON      "刷新",IDC_LIST_ALL,391,128,50,14
 END
 
 
@@ -247,6 +251,7 @@ END
 
 IDB_BITMAP1             BITMAP                  "res\\bitmap1.bmp"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -254,12 +259,33 @@ IDB_BITMAP1             BITMAP                  "res\\bitmap1.bmp"
 
 IDR_MENU1 MENU
 BEGIN
-    POPUP "Menu"
+    POPUP "设置"
     BEGIN
         MENUITEM SEPARATOR
         MENUITEM "测试选项设置",                      ID_FILE_SETTINGS
         MENUITEM "测试结果查询",                      ID_Menu_TEST_RESULT_QUERY
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_TESTRESULT_QUERY AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_COMTOOL_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 
@@ -273,7 +299,7 @@ BEGIN
     IDS_ABOUTBOX            "关于 COMTOOL(&A)..."
 END
 
-#endif    // Chinese (Simplified, PRC) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

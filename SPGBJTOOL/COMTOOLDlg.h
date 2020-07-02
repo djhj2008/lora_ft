@@ -16,11 +16,7 @@ enum EPSTOREPos
 
 enum TESTCASE
 {
-	TEST_RFID_WRITE_SN=1,
-	TEST_RFID_READ_SN,
-	TEST_RFID_FOREVER_READ_SN,
-	TEST_RFID_FAILURE,
-	TEST_RFID_SWTCH,
+	TEST_START_SWTCH,
 	TEST_SN=10,
 	TEST_RTC,
 	TEST_ADC_SAMPLE,
@@ -122,23 +118,19 @@ public:
 	CString m_strWorkFreq;
 	CString m_strAdcSampleMaxValue;
 	CString m_strAdcSampleMinValue;
-	CString m_strShutDownCurrentMaxValue;
+	CString	m_strTxrssi;
+	CString m_strRxrssi;
+	BOOL	m_checkStep;
 
 	void LoadSmallTestToolConfig(void);
 	afx_msg void OnEnChangeEdit2();
 	int AddNewSPgBoardItem(CString m_strSn);
 	int UpdateTestResult(CString m_strSn, TESTCASE m_icase,CString m_strResult);
     int UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_strADC2,CString m_strADC3);
-	BOOL m_bRfidSaveSn;
+
 	BOOL m_bATWConfig;
 	CComboBox	m_PortNO;
 	CString	m_strPortNO;
 	int  m_iPortNo;
-
-	CComboBox m_RfidPortNO;
-	CString m_strRfidPortNO;
-	int  m_iRfPortNo;
-
 	void OnOpenClosePort(BOOL bRfidPort,int openflag); // openflag : (0,close;1,open)
-	afx_msg void OnBnClickedRfidRead();
 };

@@ -40,4 +40,6 @@ public:
 	afx_msg void OnBnClickedButtonDel();
 	afx_msg void OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult);
 	
+	afx_msg void OnBnClickedSearchButton();
+	afx_msg void OnBnClickedListAll();
 };

@@ -24,7 +24,8 @@ public:
 	CString m_strWorkFreq;
 	CString m_strAdcSampleMaxValue;
 	CString m_strAdcSampleMinValue;
-	CString m_strShutDownCurrentMaxValue;
 	void SaveSmallTestToolConfig(void);
-	BOOL m_bRfidSaveSn;
+	CString m_strRxrssi;
+	CString m_strTxrssi;
+	BOOL m_checkStep;
 };

@@ -48,6 +48,8 @@ BEGIN_MESSAGE_MAP(CTestResultQueryDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST1, &CTestResultQueryDlg::OnNMClickList1)
 	ON_BN_CLICKED(IDC_BUTTON_DEL, &CTestResultQueryDlg::OnBnClickedButtonDel)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CTestResultQueryDlg::OnLvnItemchangedList1)
+	ON_BN_CLICKED(IDC_SEARCH_BUTTON, &CTestResultQueryDlg::OnBnClickedSearchButton)
+	ON_BN_CLICKED(IDC_LIST_ALL, &CTestResultQueryDlg::OnBnClickedListAll)
 END_MESSAGE_MAP()
 
 
@@ -312,7 +314,9 @@ void CTestResultQueryDlg::OnBnClickedButtonDel()
 {
 	// TODO: Add your control notification handler code here
 	GetDlgItem(IDC_BUTTON_DEL)->EnableWindow(0);
-	CString strExe="delete from SmallBoard_Info where SBI_SN='"+m_strSN+"'";
+	CString sn;
+	GetDlgItem(IDC_EDIT_SN)->GetWindowText(sn);
+	CString strExe = "delete from SmallBoard_Info where SBI_SN='" + sn + "'";
 	RunAdoSQL(strExe);
 	// update 数据库及显示信息
 	strExe = "select * from SmallBoard_Info order by SBI_SN asc";
@@ -326,4 +330,23 @@ void CTestResultQueryDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
+}
+
+
+void CTestResultQueryDlg::OnBnClickedSearchButton()
+{
+	// TODO: Add your control notification handler code here
+	CString sn;
+	GetDlgItem(IDC_EDIT_SN)->GetWindowText(sn);
+	CString strExe = "select * from SmallBoard_Info where SBI_SN='" + sn + "'";
+	RunAdoSQL(strExe); //desc
+	AddToList(1);
+}
+
+
+void CTestResultQueryDlg::OnBnClickedListAll()
+{
+	// TODO: Add your control notification handler code here
+	RunAdoSQL("select * from SmallBoard_Info order by SBI_SN asc"); //desc
+	AddToList(1);
 }

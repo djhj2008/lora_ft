@@ -94,7 +94,6 @@ CCOMTOOLDlg::CCOMTOOLDlg(CWnd* pParent /*=NULL*/)
 	LKey[2] = '6';
 	LKey[3] = '5';
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_strRfidPortNO = _T("");
 }
 
 void CCOMTOOLDlg::DoDataExchange(CDataExchange* pDX)
@@ -108,9 +107,6 @@ void CCOMTOOLDlg::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 	DDX_Text(pDX, IDC_EDIT_SN, m_strSnEdit);
 	DDV_MaxChars(pDX, m_strSnEdit, 10);
-	DDX_Control(pDX, IDC_COM_RFID, m_RfidPortNO);
-	DDX_CBString(pDX, IDC_COM_RFID, m_strRfidPortNO);
-	DDV_MaxChars(pDX, m_strRfidPortNO, 10);
 }
 
 BEGIN_MESSAGE_MAP(CCOMTOOLDlg, CDialogEx)
@@ -135,7 +131,6 @@ BEGIN_MESSAGE_MAP(CCOMTOOLDlg, CDialogEx)
 	ON_COMMAND(ID_Menu_TEST_RESULT_QUERY, &CCOMTOOLDlg::OnMenuTestResultQuery)
 	ON_EN_CHANGE(IDC_EDIT_SN, &CCOMTOOLDlg::OnEnChangeEditSn)
 	ON_EN_CHANGE(IDC_EDIT2, &CCOMTOOLDlg::OnEnChangeEdit2)
-	ON_BN_CLICKED(IDC_RFID_READ, &CCOMTOOLDlg::OnBnClickedRfidRead)
 END_MESSAGE_MAP()
 
 
@@ -183,7 +178,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	LKey[6] = '2';
 	LKey[7] = '1';
 
-    CString title = "小板生产工具(05)";        
+    CString title = "小板生产工具(v105)";        
     SetWindowText(title);
 
 	CString temp;				
@@ -202,21 +197,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 		m_PortNO.SetCurSel(0);
 	}
 
-	for(int i=1;i<=MaxSerialPortNum-1;i++)
-	{
-		if(m_RfidPort.InitPort(this,i))
-		{
-			temp.Format("COM%d",i);		
-			m_RfidPortNO.AddString((LPCTSTR)temp);
-		}
-	}
-	if(m_RfidPortNO.GetCount())
-	{
-		m_RfidPort.InitPort(this,MaxSerialPortNum);
-		m_RfidPortNO.SetCurSel(0);
-	}
 	//加载板级默认配置
-	m_bRfidSaveSn = 0;
 	LoadSmallTestToolConfig();
 	GetDlgItem(IDC_EDIT_SN)->SetFocus(); //.SendMessage(WM_KEYDOWN, VK_END, 0);
 	return FALSE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -395,94 +376,7 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
     KillTimer(nIDEvent);
 	switch(nIDEvent)
 	{
-	case TEST_RFID_WRITE_SN:
-		{
-			unsigned short int uiCrcValue = 0;
-			char cmdLen;
-			char cmdAddr;
-			char cmd;
-			char cmdData[1024];
-			char crcLsb;
-			char crcMsb;
-			char cmd_buf[1024 + 5];
-			unsigned int uSn = nSN;
-			UpdateData(true);
-			memset(strRevBuf, 0, sizeof(strRevBuf));
-			g_iRevCounter = 0;
-			GetDlgItem(IDC_EDIT2)->SetWindowText("");
-		//	GetDlgItem(IDC_EDIT4)->SetWindowText("");
-
-			cmdLen = 0x00;
-			cmdAddr = 0x00;
-			cmdLen++;
-			cmd = 0x04;
-
-			cmd_buf[cmdLen++] = cmdAddr;
-			cmd_buf[cmdLen++] = cmd;
-			//WNum	ENum	EPC	Mem	WordPtr	Wdt	Pwd	MaskAdr	MaskLen
-			//ENum
-			char ENum = 0x06;
-			ENum=sizeof(uSn)/2;
-			cmd_buf[cmdLen++] = ENum;
-
-			char accessPwd[4];
-			accessPwd[0] = 0x00;
-			accessPwd[1] = 0x00;
-			accessPwd[2] = 0x00;
-			accessPwd[3] = 0x00;
-			memcpy(cmd_buf + cmdLen, accessPwd, 4); // Pwd
-			cmdLen = cmdLen + 4;
-			//EPC
-			//memcpy(gv_Label+1,&uSn,sizeof(uSn));
-			//memcpy(cmd_buf + cmdLen, gv_Label + 1, ENum * 2);    // EPC 
-			memcpy(cmd_buf + cmdLen, &uSn, ENum * 2);  // EPC 
-			cmdLen = cmdLen + ENum * 2;
-			cmd_buf[0] = cmdLen + 1;
-			uiCrcValue = uiCrc16Cal((unsigned char *)cmd_buf, cmdLen);
-			memcpy(cmd_buf + cmdLen, &uiCrcValue, 2);
-			m_RfidPort.WriteToPort(cmd_buf, cmdLen + 2);
-		}
-		break;
-	case TEST_RFID_FOREVER_READ_SN:
-		 SetTimer(gv_testcase,1*1000,NULL);
-	case TEST_RFID_READ_SN:
-		{
-			unsigned short int uiCrcValue = 0;
-			char cmdLen;
-			char cmdAddr;
-			char cmd;
-			char cmdData[1024];
-			char crcLsb;
-			char crcMsb;
-			static char cmd_buf[1024 + 5];	
-			UpdateData(true);
-			memset(strRevBuf, 0, sizeof(strRevBuf));
-			g_iRevCounter = 0;
-			GetDlgItem(IDC_EDIT2)->SetWindowText("");
-		    //GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-			memset(cmd_buf, 0, sizeof(cmd_buf));
-			cmdLen = 0x00;
-			cmdAddr = 0x00;
-			cmdLen++;
-			//cmd = 0x01;
-			cmd = 0x0f;
-			cmdLen++;
-			cmd_buf[1] = cmdAddr;
-			cmd_buf[2] = cmd;
-			cmd_buf[0] = cmdLen + 2;
-			uiCrcValue = uiCrc16Cal((unsigned char *)cmd_buf, cmdLen+1);
-			memcpy(cmd_buf + cmdLen + 1, &uiCrcValue, 2);
-			m_RfidPort.WriteToPort(cmd_buf, cmdLen+3);
-		}
-		break;
-	case TEST_RFID_FAILURE:
-		{
-			OnOpenClosePort(TRUE,FALSE);
-			GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
-		}
-		KillTimer(nIDEvent);
-		break;
-	case TEST_RFID_SWTCH:
+	case TEST_START_SWTCH:
 		{
 			KillTimer(nIDEvent);
 			OnOpenClosePort(FALSE,TRUE);
@@ -587,315 +481,6 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 	int pos1,pos2,pos3,pos4;
 	CString strsend,strTmp;
     GetDlgItem(IDC_EDIT2)->GetWindowText(m_strReceive);
-#if 1
-	if(gv_testcase<TEST_SN)
-	{
-		m_strReceive += DevideHexChar(ch);
-		strRevBuf[g_iRevCounter++] = ch;
-		if ((strRevBuf[0] + 1) == g_iRevCounter)
-		{
-			char RspLen;
-			char RspAddr;
-			char Rsp;
-			char RspStatus;
-			char RspData[1024];
-			char crcLsb;
-			char crcMsb;
-			char Rsp_buf[1024 + 5];
-			static int try_write_epc_counter=0;
-			g_iRevCounter = strRevBuf[0];
-			// here handle recieve data
-			RspLen = strRevBuf[0];
-			RspAddr = strRevBuf[1];
-			Rsp = strRevBuf[2];
-			RspStatus = strRevBuf[3];
-			switch (Rsp)
-			{
-			case 0x01: // 查询标签
-			case 0x0f: //询查单张标签
-				if ((RspStatus == 0x01) || (RspStatus == 0x02))
-				{
-					char Num = strRevBuf[4];
-					int pos = 5;
-					int EpcLen =0;
-					unsigned char EpcBuf[15]={0};
-					memset(gv_Label, 0, sizeof(gv_Label));
-					//E20020170525000000001384
-					for (int i = 0; i < Num; i++)
-					{
-						CString strTemp="";
-						CString strTmp1;
-						unsigned int nRFSN;
-						GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-						EpcLen = strRevBuf[pos++];
-						memset(gv_Label,0,sizeof(gv_Label));
-						memcpy(gv_Label, &strRevBuf[pos], EpcLen);
-
-						memcpy(&nRFSN,gv_Label,sizeof(nRFSN));
-						nPgID = nSN & 0x1fff;
-						nFactoryID = (nSN>>13) & 0x7ffff;
-
-						strTmp1.Format("\r\nnRFSN:%s;\r\n",formatSn(nRFSN));
-						strTemp = strTemp+strTmp1;
-						if(gv_testcase==TEST_RFID_READ_SN)
-						{
-							if(nRFSN!=nSN)
-							{
-								strTmp1.Format("Sn:%s;nRFSN:%s;不一致，失败!!!\r\n",formatSn(nSN),formatSn(nRFSN));
-								gv_testcase = TEST_RFID_FAILURE;
-								UpdateTestResult(m_strSnEdit,TEST_RFID_READ_SN,"4");
-							}
-							else
-							{
-								gv_testcase = TEST_RFID_SWTCH;
-								UpdateTestResult(m_strSnEdit,TEST_RFID_READ_SN,"1");
-							}
-		                    SetTimer(gv_testcase,1*1000,NULL);
-						}
-						GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-					}
-				}
-				else
-				{
-					 if(gv_testcase==TEST_RFID_READ_SN)
-					 {
-						 try_write_epc_counter++;
-						 if(try_write_epc_counter>10)
-						 {
-							  CString strTemp;
-					          GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-							  UpdateTestResult(m_strSnEdit,TEST_RFID_READ_SN,"3");
-							  strTemp += "RFID读SN失败!!!!\r\n";
-					          try_write_epc_counter = 0;
-						      gv_testcase = TEST_RFID_FAILURE;
-						      SetTimer(gv_testcase,1*1000,NULL);
-							  GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-							  try_write_epc_counter = 0;
-						 }
-						 SetTimer(gv_testcase,1*1000,NULL);
-					 }
-				}
-				memset(strRevBuf, 0, sizeof(strRevBuf));
-				g_iRevCounter = 0;
-				break;
-			case 0x02: //读数据
-				if (RspStatus == 0x00)
-				{
-					char readData[128];
-					CString strTemp ;
-					memset(readData, 0, sizeof(readData));
-					memcpy(readData, strRevBuf + 4, strRevBuf[0] - 5);		
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);	
-					strTemp += "readData:";
-					for (int m = 0; m < strRevBuf[0] - 5; m++)
-							strTemp += DevideHexChar(strRevBuf[m+4]);
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText("读数据失败");
-				}
-				break;
-			case 0x03: //写数据
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "写数据成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "写数据失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-			case 0x04: //写EPC
-				 KillTimer(gv_testcase);
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "写EPC成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-					gv_testcase = TEST_RFID_READ_SN;
-                    SetTimer(gv_testcase,1*1000,NULL);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					if(try_write_epc_counter>10)
-					{
-					    strTemp += "写EPC失败";
-					    try_write_epc_counter = 0;
-						UpdateTestResult(m_strSnEdit,TEST_RFID_READ_SN,"2");
-						gv_testcase = TEST_RFID_FAILURE;
-						SetTimer(gv_testcase,1*1000,NULL);
-					}
-					else
-					{
-	                    try_write_epc_counter++;
-						SetTimer(gv_testcase,1*1000,NULL);
-					}
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-			case 0x05:
-				break;
-			case 0x06:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "设定存储区读写保护状态成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "设定存储区读写保护状态失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x07:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "块擦除成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "块擦除失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x08:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "根据EPC号读设定成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "根据EPC号读设定失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x09:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "无EPC号读设定成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "无EPC号读设定失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x0A:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "解锁成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else if (RspStatus == (char)0x0E)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "无读写保护无需解锁";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else if (RspStatus == (char)0xfb)
-				{
-					CString strTemp;
-					strTemp += "无可用的电子标签";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "解锁失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x0B:
-				if (RspStatus == 0x00)
-				{
-					char ReadPro = strRevBuf[4];
-					CString strTemp;										
-					if (RspStatus == (char)0x00)
-					{
-						strTemp += "电子标签没有被设置为读保护";
-					}
-					else if (RspStatus ==(char)0x01)
-					{
-						strTemp += "电子标签被设置为读保护";
-					}					
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else if (RspStatus == (char)0xfb)
-				{
-					CString strTemp;
-					strTemp += "无可用的电子标签";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "测试标签是否被设置读保护失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-			case 0x10:
-				if (RspStatus == 0x00)
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "写成功";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}		
-				else if (RspStatus == (char)0xfb)
-				{
-					CString strTemp;
-					strTemp += "无可用的电子标签";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				else
-				{
-					CString strTemp;
-					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(strTemp);
-					strTemp += "写失败";
-					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(strTemp);
-				}
-				break;
-				break;
-			default:
-					break;
-			}
-		}
-		m_strReceive += " ";
-	}
-	else
-#endif
 	{
 		m_strReceive += (char)ch;
 	}
@@ -1244,13 +829,9 @@ void CCOMTOOLDlg::OnFileSettings()
     dlg.m_strWorkFreq = m_strWorkFreq;
 	dlg.m_strAdcSampleMaxValue = m_strAdcSampleMaxValue;
 	dlg.m_strAdcSampleMinValue = m_strAdcSampleMinValue;
-	dlg.m_strShutDownCurrentMaxValue = m_strShutDownCurrentMaxValue;
-	dlg.m_bRfidSaveSn = m_bRfidSaveSn;
-
-	//UpdateData(true);
-	//if(m_bRfidSaveSn)
-	//OnOpenClosePort(TRUE,FALSE);
-	//OnOpenClosePort(FALSE,FALSE);
+	dlg.m_strRxrssi = m_strRxrssi;
+	dlg.m_strTxrssi = m_strTxrssi;
+	dlg.m_checkStep = m_checkStep;
 
 	dlg.DoModal();
     LoadSmallTestToolConfig();
@@ -1311,26 +892,11 @@ void CCOMTOOLDlg::OnEnChangeEditSn()
 	OnOpenClosePort(FALSE, FALSE);
 	OnOpenClosePort(TRUE, FALSE);
 
-	if(m_bRfidSaveSn)
-	{
-        temp=m_strRfidPortNO;
-        temp.Delete(0,3);
-		m_iRfPortNo = atoi(temp);
-		temp=m_strPortNO;
-        temp.Delete(0,3);
-		m_iPortNo = atoi(temp);
-		if(m_iRfPortNo==m_iPortNo)
-		{
-			MessageBox("RF端口与测试端口不为同一端口，请重新选择端口!!!","提示!",MB_ICONWARNING | MB_OK);
-			return ;
-		}
-	}
-	else
-	{
-		temp=m_strPortNO;
-        temp.Delete(0,3);
-		m_iPortNo = atoi(temp);
-	}
+
+	temp=m_strPortNO;
+    temp.Delete(0,3);
+	m_iPortNo = atoi(temp);
+	
 	//
 	//GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
 	//m_strTestStatus = m_strTestStatus+"*********************************\r\n";
@@ -1366,17 +932,11 @@ void CCOMTOOLDlg::OnEnChangeEditSn()
 #else
     
     GetDlgItem(IDC_EDIT_SN)->EnableWindow(0);
-	if(m_bRfidSaveSn)
-	{
-	   OnOpenClosePort(TRUE,TRUE);
-	   gv_testcase = TEST_RFID_WRITE_SN;
-	}
-	else
-	{
-		gv_testcase = TEST_RFID_SWTCH;
-	    //strsend = "ATS"+m_strSnEdit+"\r\n";
-	    //m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
-	}
+
+	gv_testcase = TEST_START_SWTCH;
+	//strsend = "ATS"+m_strSnEdit+"\r\n";
+	//m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
+	
 	SetTimer(gv_testcase,1*1000,NULL);
 #endif
 }
@@ -1390,39 +950,26 @@ void CCOMTOOLDlg::LoadSmallTestToolConfig(void)
     GetCurrentDirectory(1000,buf);//得到当前工作路径  
 	strPath = buf;
 	strPath += "\\SmallBJ.ini";
-#if 1
+
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("TestFreq"), _T("440000000"), m_strTestFreq.GetBuffer(MAX_PATH),MAX_PATH, strPath);
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("WorkFreq"), _T("433000000"), m_strWorkFreq.GetBuffer(MAX_PATH),MAX_PATH, strPath);
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), _T("2294612"),m_strAdcSampleMaxValue.GetBuffer(MAX_PATH),MAX_PATH,strPath);  
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), _T("1802342"),m_strAdcSampleMinValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);  
-    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("ShutDownCurrentMaxValue"), _T("ShutDownCurrentMaxValue"),m_strShutDownCurrentMaxValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);
+	::GetPrivateProfileString(_T("SmallBJConfig"), _T("TXRSSI"), _T("-80"), m_strTxrssi.GetBuffer(MAX_PATH), MAX_PATH, strPath);
+	::GetPrivateProfileString(_T("SmallBJConfig"), _T("RXRSSI"), _T("-80"), m_strRxrssi.GetBuffer(MAX_PATH), MAX_PATH, strPath);
 
-   ::GetPrivateProfileString(_T("SmallBJConfig"), _T("ATW"), _T("1"),strTmp.GetBuffer(MAX_PATH),MAX_PATH, strPath);
-   m_bATWConfig = atoi(strTmp);
+	::GetPrivateProfileString(_T("SmallBJConfig"), _T("ATW"), _T("1"),strTmp.GetBuffer(MAX_PATH),MAX_PATH, strPath);
+	m_bATWConfig = atoi(strTmp);
 
-    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("RFIDSaveSN"), _T("0"),strTmp.GetBuffer(MAX_PATH),MAX_PATH, strPath);
-	m_bRfidSaveSn = atoi(strTmp);
+    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("TestStep"), _T("1"),strTmp.GetBuffer(MAX_PATH),MAX_PATH, strPath);
+	m_checkStep = atoi(strTmp);
 
-	if(m_bRfidSaveSn)
-	{
-		GetDlgItem(IDC_COM_RFID)->ShowWindow(SW_SHOW);
-		GetDlgItem(IDC_RFID_READ)->ShowWindow(SW_SHOW);
-		GetDlgItem(IDC_STATIC_RFPORT)->ShowWindow(SW_SHOW);
-		GetDlgItem(IDC_RFID_READ)->ShowWindow(SW_SHOW);
+	if (m_checkStep) {
+		GetDlgItem(IDC_EDIT_STEP)->SetWindowText("开启");
 	}
-	else
-	{
-		GetDlgItem(IDC_COM_RFID)->ShowWindow(SW_HIDE);
-		GetDlgItem(IDC_RFID_READ)->ShowWindow(SW_HIDE);
-		GetDlgItem(IDC_STATIC_RFPORT)->ShowWindow(SW_HIDE);
-		GetDlgItem(IDC_RFID_READ)->ShowWindow(SW_HIDE);
+	else {
+		GetDlgItem(IDC_EDIT_STEP)->SetWindowText("关闭");
 	}
-#else
-    ::GetPrivateProfileString(("SmallBJConfig"), ("TestFreq"), ("434000000"), m_strTestFreq.GetBuffer(MAX_PATH),MAX_PATH, strPath);  
-    ::GetPrivateProfileString(("SmallBJConfig"), ("AdcSampleMaxValue"), ("2294612"),m_strAdcSampleMaxValue.GetBuffer(MAX_PATH),MAX_PATH,strPath);  
-    ::GetPrivateProfileString(("SmallBJConfig"), ("AdcSampleMinValue"), ("1802342"),m_strAdcSampleMinValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);  
-    ::GetPrivateProfileString(("SmallBJConfig"), ("ShutDownCurrentMaxValue"), ("ShutDownCurrentMaxValue"),m_strShutDownCurrentMaxValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);
-#endif
 }
 
 void CCOMTOOLDlg::OnEnChangeEdit2()
@@ -1504,10 +1051,6 @@ int CCOMTOOLDlg::UpdateTestResult(CString m_strSn, TESTCASE m_icase, CString m_s
 	{
 	case TEST_SN:
 		strField = "SBI_SN" ;
-		break;
-	case TEST_RFID_WRITE_SN:
-	case TEST_RFID_READ_SN:
-		 strField = "SBI_RFEPC" ;
 		break;
 	case TEST_RTC:
 		strField = "SBI_RTC" ;
@@ -1593,31 +1136,16 @@ void CCOMTOOLDlg::OnOpenClosePort(BOOL bRfidPort,int openflag)
 	CString temp;
 	UpdateData(true);
 
-	if(bRfidPort&&(m_RfidPortNO.GetCount()==0))
-	{
-		return;
-	}
-	else if((bRfidPort==FALSE)&&(m_PortNO.GetCount()==0))
+	if(m_PortNO.GetCount()==0)
 	{
 		return;
 	}
 
 	if(openflag==0)
 	{
-		//m_SerialPort.InitPort(this,MaxSerialPortNum);
-		if (bRfidPort)
-		{
-			ret = m_RfidPort.InitPort(this, SelPortNO);
-			if (ret == -1) {
-				//AfxMessageBox("RFID串口关闭失败!\n");
-			}
-		}
-		else
-		{
-			ret = m_SerialPort.InitPort(this, SelPortNO);
-			if (ret == -1) {
-				//AfxMessageBox("串口关闭失败!\n");
-			}
+		ret = m_SerialPort.InitPort(this, SelPortNO);
+		if (ret == -1) {
+			//AfxMessageBox("串口关闭失败!\n");
 		}
 	}
 	else 
@@ -1625,10 +1153,7 @@ void CCOMTOOLDlg::OnOpenClosePort(BOOL bRfidPort,int openflag)
 		int SelBaudRate,SelDataBits,SelStopBits;
 		char SelParity;
 		UpdateData(true);
-		if(bRfidPort)
-		  temp=m_strRfidPortNO;
-		else
-	      temp=m_strPortNO;
+	    temp=m_strPortNO;
 		temp.Delete(0,3);
 		SelPortNO=atoi(temp);
 		//SelBaudRate=115200;
@@ -1636,16 +1161,6 @@ void CCOMTOOLDlg::OnOpenClosePort(BOOL bRfidPort,int openflag)
 		SelDataBits=8;
 		SelParity='N';
 		SelStopBits=1;
-		if(bRfidPort)
-		{
-			if(m_RfidPort.InitPort(this,SelPortNO,57600,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))
-			{
-				m_RfidPort.StartMonitoring();
-			}
-			else 
-				AfxMessageBox("该串口已经被其他应用程序所占用!\n请选择其它的串口");
-		}
-		else
 		{
 			//if(m_SerialPort.InitPort(this,SelPortNO,128000,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))		
             if(m_SerialPort.InitPort(this,SelPortNO,57600,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))	
@@ -1655,30 +1170,5 @@ void CCOMTOOLDlg::OnOpenClosePort(BOOL bRfidPort,int openflag)
 			else 
 				AfxMessageBox("该串口已经被其他应用程序所占用!\n请选择其它的串口");
 		}
-	}
-}
-
-void CCOMTOOLDlg::OnBnClickedRfidRead()
-{
-	// TODO: Add your control notification handler code here
-	static int readrfid_tag = 0;
- 
-	if(readrfid_tag==0)
-	{
-		readrfid_tag = 1;
-        GetDlgItem(IDC_EDIT_SN)->EnableWindow(0);
-		gv_testcase = TEST_RFID_FOREVER_READ_SN;
-		OnOpenClosePort(m_bRfidSaveSn,TRUE);
-		SetTimer(gv_testcase,1*1000,NULL);
-		GetDlgItem(IDC_RFID_READ)->SetWindowText("RFID停止读取SN");
-	}
-	else
-	{
-		readrfid_tag = 0;
-        GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
-		gv_testcase = TEST_RFID_FOREVER_READ_SN;
-		OnOpenClosePort(m_bRfidSaveSn,FALSE);
-		KillTimer(gv_testcase);
-        GetDlgItem(IDC_RFID_READ)->SetWindowText("RFID读取SN");
 	}
 }
