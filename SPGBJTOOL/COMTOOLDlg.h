@@ -5,6 +5,7 @@
 #include "SerialPort.h"	// Added by ClassView
 #pragma once
 
+#define TEST_STEP_COUNT_MAX 5
 enum EPSTOREPos
 {
 	PROJECT_ID=0,
@@ -18,11 +19,12 @@ enum TESTCASE
 {
 	TEST_START_SWTCH,
 	TEST_SN=10,
+	TEST_STEP,
+	TEST_STEP_START,
+	TEST_STEP_COUNT,
 	TEST_RTC,
 	TEST_ADC_SAMPLE,
 	TEST_LORA_RXTX,
-	TEST_LORA_DEFAULT_FREQ_SETTING,
-	TEST_ADC_SAMPLE_38VALUE_DEFAULT_SETTING,
 	TEST_ATW_STATE,
 	TEST_ADC_SAMPLE_STATE,
 	TEST_SUCCEED_WAIT_NEXT,
@@ -132,5 +134,6 @@ public:
 	CComboBox	m_PortNO;
 	CString	m_strPortNO;
 	int  m_iPortNo;
+	int  m_retry_count;
 	void OnOpenClosePort(BOOL bRfidPort,int openflag); // openflag : (0,close;1,open)
 };

@@ -78,6 +78,7 @@ CCOMTOOLDlg::CCOMTOOLDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	gv_testcase = TEST_CASE_MAX;
+	m_retry_count = TEST_STEP_COUNT_MAX;
 	License_max_value=0;
 	License_current_value=0;
 	License_current_backup_value=0;
@@ -384,7 +385,6 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 	        strsend = "ATS"+m_strSnEdit+"\r\n";
 	        m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
 	        SetTimer(gv_testcase,2*1000,NULL);
-            //GetDlgItem(IDC_EDIT_SN)->EnableWindow(0);
 		}
 		break;
 	case TEST_SN:
@@ -396,6 +396,38 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
           GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
 		  KillTimer(TEST_SN);
 		  break;
+	case TEST_STEP:
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			strTmp = "STEP:测试失败\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+			GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+			KillTimer(TEST_STEP);
+			break;
+	case TEST_STEP_START:
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			strTmp = "STEP:等待获取步数\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+			GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+			KillTimer(TEST_STEP_START);
+			m_retry_count = TEST_STEP_COUNT_MAX;
+			gv_testcase = TEST_STEP_COUNT;
+			strsend = "ATB\r\n";
+			m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+			SetTimer(gv_testcase, 2 * 1000, NULL);
+			break;
+	case TEST_STEP_COUNT:
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			strTmp = "STEP:获取步数失败\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+			GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+			KillTimer(TEST_STEP_COUNT);
+			break;
 	case TEST_RTC:
 		  UpdateTestResult(m_strSnEdit,TEST_RTC,"2");
 		  GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
@@ -414,16 +446,6 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 		  strTmp =m_strTestFreq.GetBuffer();
           strTmp = "Lora(频率"+strTmp+")收发测试失败\r\n";
 		  m_strTestStatus = m_strTestStatus+strTmp;
-          GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-		  break;
-	case TEST_LORA_DEFAULT_FREQ_SETTING:
-		  GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-		  m_strTestStatus = m_strTestStatus+"LORA设置默认工作频率失败\r\n";
-          GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-		  break;
-	case TEST_ADC_SAMPLE_38VALUE_DEFAULT_SETTING:
-		  GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-		  m_strTestStatus = m_strTestStatus+"ADC设置默认校准值失败\r\n";
           GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
 		  break;
 	case TEST_ATW_STATE:
@@ -478,8 +500,8 @@ char * formatSn(int sn)
 }
 LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 {
-	int pos1,pos2,pos3,pos4;
-	CString strsend,strTmp;
+	int pos1=-1,pos2=-1,pos3=-1,pos4=-1,tx_rssi,rx_rssi;
+	CString strsend,strTmp,str_tx_rssi,str_rx_rssi;
     GetDlgItem(IDC_EDIT2)->GetWindowText(m_strReceive);
 	{
 		m_strReceive += (char)ch;
@@ -501,10 +523,110 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 		   m_strTestStatus = m_strTestStatus+strTmp;
            GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
            GetDlgItem(IDC_EDIT2)->SetWindowText("");
-           gv_testcase = TEST_RTC;
-	       strsend = "ATR5\r\n";
-	       m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
-	       SetTimer(gv_testcase,10*1000,NULL);
+           //gv_testcase = TEST_RTC;
+	       //strsend = "ATR5\r\n";
+	       //m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
+	       //SetTimer(gv_testcase,10*1000,NULL);
+		   gv_testcase = TEST_STEP;
+		   if (m_checkStep){
+			   strsend = "ATK1\r\n";
+		   }
+		   else{
+			   strsend = "ATK0\r\n";
+		   }
+		   m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+		   SetTimer(gv_testcase, 5 * 1000, NULL);
+		}
+		break;
+	case TEST_STEP:
+		if (m_strReceive.Find("ATKOK") >= 0){
+			m_strReceive = "";
+			GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+			KillTimer(gv_testcase);
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+
+			strTmp = "计步器:配置成功\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT2)->SetWindowText("");
+
+			if (m_checkStep){
+				gv_testcase = TEST_STEP_START;
+				strsend = "ATP1\r\n";
+				m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+				SetTimer(gv_testcase, 2 * 1000, NULL);
+			}
+			else{
+				gv_testcase = TEST_RTC;
+				strsend = "ATR5\r\n";
+				m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+				SetTimer(gv_testcase, 10 * 1000, NULL);
+			}
+		}
+		else if (m_strReceive.Find("ATKERR") >= 0){
+			m_strReceive = "";
+			GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+			KillTimer(gv_testcase);
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+
+			strTmp = "计步器:配置成功\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT2)->SetWindowText("");
+		}
+		break;
+	case TEST_STEP_COUNT:
+		if (m_strReceive.Find("ATBOK") >= 0){
+			pos1 = m_strReceive.Find("ATBOK");
+			pos2 = m_strReceive.Find("\r\n",pos1+6);
+			if (pos2 >= 0 ){
+				CString str_count = m_strReceive.Mid(pos1 + 6, pos2 - (pos1 + 1));
+
+				m_strReceive = "";
+				GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+				KillTimer(gv_testcase);
+				GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+
+				UpdateTestResult(m_strSnEdit, TEST_STEP_COUNT, str_count);
+				strTmp = "计步器:" + str_count + "读取步数成功\r\n";
+				m_strTestStatus = m_strTestStatus + strTmp;
+				GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+				GetDlgItem(IDC_EDIT2)->SetWindowText("");
+
+				strsend = "ATP0\r\n";
+				m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+
+				gv_testcase = TEST_RTC;
+				strsend = "ATR5\r\n";
+				m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+				SetTimer(gv_testcase, 10 * 1000, NULL);
+			}
+		}
+		else if (m_strReceive.Find("ATBERR") >= 0){
+			m_strReceive = "";
+			GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+			KillTimer(gv_testcase);
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+
+			if (m_retry_count > 0){
+				CString str_retry_count = "";
+				str_retry_count.Format("%d", m_retry_count);
+				strTmp = "STEP:" + str_retry_count + "次重试\r\n";
+				m_strTestStatus = m_strTestStatus + strTmp;
+				GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+				GetDlgItem(IDC_EDIT2)->SetWindowText("");
+				Sleep(500);
+				strsend = "ATB\r\n";
+				m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+				SetTimer(gv_testcase, 2 * 1000, NULL);
+			}
+			else{
+				strTmp = "计步器:读取步数失败\r\n";
+				m_strTestStatus = m_strTestStatus + strTmp;
+				GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+				GetDlgItem(IDC_EDIT2)->SetWindowText("");
+			}
+			m_retry_count--;
 		}
 		break;
 	case TEST_RTC:
@@ -591,28 +713,80 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 	case TEST_LORA_RXTX:
 		if(m_strReceive.Find("AT+RFOK")>=0)
 		{
-		   UpdateTestResult(m_strSnEdit,TEST_LORA_RXTX,"1");
-		   m_strReceive= "";
-		   GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-		   KillTimer(gv_testcase);
-           GetDlgItem(IDC_EDIT2)->SetWindowText("");
-           GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-		   strTmp = m_strTestFreq.GetBuffer();
-           strTmp = "Lora频率:"+strTmp+"收发测试成功\r\n";
-		   m_strTestStatus = m_strTestStatus+strTmp;
-           GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-#if 0
-		   strsend = "ATW\r\n";
-		   m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
-		   Sleep(2000);
-		   gv_testcase = TEST_ATW_STATE;
-#else
-			gv_testcase = TEST_LORA_DEFAULT_FREQ_SETTING;
-			strTmp = m_strWorkFreq.GetBuffer();
-			strsend = "ATC" + strTmp + "\r\n";
-			m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
-#endif
-		   SetTimer(gv_testcase,20*1000,NULL);
+			pos1 = m_strReceive.Find("AT+RFOK");
+			if (pos1 >= 0){
+				pos2 = m_strReceive.Find(":",pos1+strlen("AT+RFOK"));
+				if (pos2 > 0){
+					pos3 = m_strReceive.Find("\r\n", pos2);
+				}
+			}
+			if (pos3 >= 0){
+				str_rx_rssi = m_strReceive.Mid(pos1 + strlen("AT+RFOK") + 1, pos2 - (pos1 + strlen("AT+RFOK") + 1));
+				str_tx_rssi = m_strReceive.Mid(pos2 + 1, pos3 - (pos2 + 1));
+
+				int i_rx_rssi = atoi(str_rx_rssi);
+				int i_tx_rssi = atoi(str_tx_rssi);
+
+				if (i_rx_rssi < atoi(m_strRxrssi) || i_tx_rssi < atoi(m_strTxrssi)){
+					if (i_rx_rssi < atoi(m_strRxrssi)){
+						UpdateTestResult(m_strSnEdit, TEST_LORA_RXTX, "3");
+					}
+					else{
+						UpdateTestResult(m_strSnEdit, TEST_LORA_RXTX, "2");
+					}
+					m_strReceive = "";
+					GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+					KillTimer(gv_testcase);
+					strTmp = strTmp + "LORA RSSI:" + " RX:" + str_rx_rssi + ",TX:" + str_tx_rssi + ",超出范围\r\n";
+					m_strTestStatus = m_strTestStatus + strTmp;
+					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+					GetDlgItem(IDC_EDIT2)->SetWindowText("");
+					GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+					GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+					GetDlgItem(IDC_EDIT_SN)->SetFocus();
+				}
+				else{
+					UpdateTestResult(m_strSnEdit, TEST_LORA_RXTX, "1");
+					m_strReceive = "";
+					GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+					KillTimer(gv_testcase);
+					GetDlgItem(IDC_EDIT2)->SetWindowText("");
+					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+					strTmp = m_strTestFreq.GetBuffer();
+					strTmp = "Lora频率:" + strTmp + " RX:" + str_rx_rssi + "TX:" + str_tx_rssi + ",收发测试成功\r\n";
+					m_strTestStatus = m_strTestStatus + strTmp;
+					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+
+					if (m_bATWConfig)
+					{
+						gv_testcase = TEST_ATW_STATE;
+						strsend = "ATW\r\n"; 
+						m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+						SetTimer(gv_testcase, 20 * 1000, NULL);
+					}
+					else
+					{
+						CTime time = CTime::GetCurrentTime();
+						CString date = time.Format("%Y-%m-%d %H:%M:%S");
+						UpdateTestResult(m_strSnEdit, TEST_ATW_STATE, "0");
+						UpdateTestResult(m_strSnEdit, TEST_ADC_SAMPLE_STATE, date);
+						// 更新测试结果时间
+						m_strReceive = "";
+						GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+						KillTimer(gv_testcase);
+						GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+						GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+						GetDlgItem(IDC_EDIT_SN)->SetFocus();
+
+						strTmp = "测试成功，等待下一次测试!!!\r\n";
+						m_strTestStatus = m_strTestStatus + strTmp;
+						GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+						gv_testcase = TEST_SUCCEED_WAIT_NEXT;
+						SetTimer(gv_testcase, 1 * 1000, NULL);
+					}
+				}
+
+			}
 		}
 		else if(m_strReceive.Find("AT+RFERR1")>=0) //AT+RFERR1  // LORA发送超时
 		{
@@ -642,51 +816,6 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
             GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
 		    GetDlgItem(IDC_EDIT_SN)->SetFocus();
 		}
-		break;
-	case TEST_LORA_DEFAULT_FREQ_SETTING:
-		if(m_strReceive.Find("ATCOK")>=0)
-		{
-		   char m_strWorkFreqR = m_strWorkFreq.GetAt(0);
-		   m_strReceive= "";
-		   GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-		   KillTimer(gv_testcase);
-           GetDlgItem(IDC_EDIT2)->SetWindowText("");
-           GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-		   UpdateTestResult(m_strSnEdit,TEST_LORA_DEFAULT_FREQ_SETTING,(CString)m_strWorkFreqR);
-		   m_strTestStatus = m_strTestStatus+"Lora默认工作频率设置成功\r\n";
-           GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-		   if(m_bATWConfig)
-		   {
-			   gv_testcase = TEST_ATW_STATE;
-			   strsend = "ATW\r\n";
-			   m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
-			   SetTimer(gv_testcase,20*1000,NULL);
-		   }
-		   else
-		   {
-			   CTime time = CTime::GetCurrentTime();
-			   CString date = time.Format("%Y-%m-%d %H:%M:%S");
-			   UpdateTestResult(m_strSnEdit,TEST_ATW_STATE,"0");
-			   UpdateTestResult(m_strSnEdit,TEST_ADC_SAMPLE_STATE,date);
-			   // 更新测试结果时间
-			   m_strReceive= "";
-			   GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-			   KillTimer(gv_testcase);
-			   GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
-			   GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
-			   GetDlgItem(IDC_EDIT_SN)->SetFocus();
-
-              strTmp = "测试成功，等待下一次测试!!!\r\n";
-		      m_strTestStatus = m_strTestStatus+strTmp;
-              GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-			  gv_testcase = TEST_SUCCEED_WAIT_NEXT; 
-               SetTimer(gv_testcase,1*1000,NULL);
-		   }
-   
-
-		}
-		break;
-	case TEST_ADC_SAMPLE_38VALUE_DEFAULT_SETTING:
 		break;
 	case TEST_ATW_STATE:
 		if(m_strReceive.Find("ATWOK")>=0)
@@ -1061,8 +1190,8 @@ int CCOMTOOLDlg::UpdateTestResult(CString m_strSn, TESTCASE m_icase, CString m_s
 	case TEST_LORA_RXTX:
 		strField = "SBI_LORA_RT" ;
 		break;
-	case TEST_LORA_DEFAULT_FREQ_SETTING:
-		 strField = "SBI_WORK_FREQ" ;
+	case TEST_STEP_COUNT:
+		 strField = "SBI_STEP" ;
 		break;
 	case TEST_ATW_STATE:
 		strField = "SBI_ATW_STATE" ;
@@ -1163,7 +1292,7 @@ void CCOMTOOLDlg::OnOpenClosePort(BOOL bRfidPort,int openflag)
 		SelStopBits=1;
 		{
 			//if(m_SerialPort.InitPort(this,SelPortNO,128000,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))		
-            if(m_SerialPort.InitPort(this,SelPortNO,57600,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))	
+            if(m_SerialPort.InitPort(this,SelPortNO,115200,SelParity,SelDataBits,SelStopBits,EV_RXCHAR|EV_CTS,512))	
 			{
 				m_SerialPort.StartMonitoring();
 			}
