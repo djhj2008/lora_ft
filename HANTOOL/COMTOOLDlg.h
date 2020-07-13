@@ -99,11 +99,12 @@ public:
 	CString m_strAdcSampleMaxValue;
 	CString m_strAdcSampleMinValue;
 	CString m_strRssiValue;
+	CString m_strRssiValue2;
 
 	void LoadSmallTestToolConfig(void);
 	int AddNewSPgBoardItem(CString m_strSn);
 	int UpdateTestResult(CString m_strSn, TESTCASE m_icase,CString m_strResult);
-	int UpdateADCResult(CString m_strSn, CString m_strADC1, CString m_strADC2, CString m_strADC3, CString m_strRssi);
+	int UpdateADCResult(CString m_strSn, CString m_strADC1, CString m_strADC2, CString m_strADC3, CString m_strRssi, CString m_strRssi2);
 
 	void UpdateTestPic(BOOL ret);
 

@@ -37,6 +37,7 @@
 #define IDC_STATIC_WRITE_NUMBER         1032
 #define IDC_STATIC_READ_NUM             1033
 #define IDC_BUTTON2                     1038
+#define IDC_LIST_ALL                    1038
 #define IDC_EDIT3                       1039
 #define IDC_EDIT_SN                     1039
 #define IDC_EDIT_ADC_SAMPLE_VALUE_MIN   1039
@@ -48,7 +49,6 @@
 #define IDC_LIST1                       1051
 #define IDC_BUTTON_NEXT                 1054
 #define IDC_BUTTON_PREVIOUS             1055
-
 #define IDC_EDIT_ATW                    1059
 #define IDC_EDIT_TIME                   1060
 #define IDC_BUTTON_DEL                  1061
@@ -56,6 +56,7 @@
 #define IDC_STATIC_PORT                 1066
 #define IDC_BUTTON1                     1067
 #define IDC_RFID_READ                   1067
+#define IDC_SEARCH_BUTTON               1067
 #define IDC_STATIC_RF                   1068
 #define IDC_STATIC_RFPORT               1068
 #define IDC_EDIT_RFEPC                  1069

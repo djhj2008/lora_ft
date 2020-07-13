@@ -143,7 +143,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 
     CString Tmp,Tmp1;
 
-    CString title = "小板焊接工具(v301)";        
+    CString title = "整机测试工具(v301)";        
     SetWindowText(title);
 
 	//设置静态文本字体大小
@@ -155,7 +155,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	pEdt1->SetFont(&m_editFont);
 
 	/*
-	int ret=UpdateADCResult("000050014","22","33","31");
+	int ret=UpdateADCResult("000050014","22","33","31","-38","-80");
 	if (ret == -1)
 	{
 
@@ -415,7 +415,7 @@ char * formatSn(int sn)
 }
 LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 {
-	int pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8;
+	int pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10;
 	CString strsend,strTmp;
     GetDlgItem(IDC_EDIT2)->GetWindowText(m_strReceive);
 	if (gv_testcase == TEST_WAIT_CMD) {
@@ -439,7 +439,7 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 	m_strCMD += (char)ch;
 	
     GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-	//m_strCMD = "PGSN:000050003;Temp:22,26,21;Rssi:-58;\r\n\r\n";
+	//m_strCMD = "PGSN:000050003;Temp:22,26,21;Rssi:-58;sRssi:-68\r\n\r\n";
 	switch(gv_testcase)
 	{
 	case TEST_ADC_SAMPLE:
@@ -459,20 +459,24 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 					 pos6 = m_strCMD.Find(";", pos5+1);
 					 pos7 = m_strCMD.Find("Rssi:", pos6 + 1);
 					 pos8 = m_strCMD.Find(";", pos7 + 1);
+					 pos9 = m_strCMD.Find("sRssi:", pos8 + 1);
+					 pos10 = m_strCMD.Find("\r\n", pos9 + 6);
 					 if(pos4>=0)
 					 {
-						CString str_sn,str_temp1,str_temp2,str_temp3,str_rssi;
-						int adc1,adc2,adc3,rssi;
+						 CString str_sn, str_temp1, str_temp2, str_temp3, str_rssi, str_rssi2;
+						 int adc1, adc2, adc3, rssi, rssi2;
 
 						str_sn = m_strCMD.Mid(pos1+5,pos2-(pos1+5));
 						str_temp1 = m_strCMD.Mid(pos3+5,pos4-(pos3+5));
 						str_temp2 = m_strCMD.Mid(pos4+1,pos5-pos4-1);
 						str_temp3 = m_strCMD.Mid(pos5+1,pos6-pos5-1);
 						str_rssi = m_strCMD.Mid(pos7+5, pos8-(pos7+5));
+						str_rssi2 = m_strCMD.Mid(pos9 + 6, pos10 - (pos9 + 6));
 						adc1 = atoi(str_temp1);
 						adc2 = atoi(str_temp2);
 						adc3 = atoi(str_temp3);
 						rssi = atoi(str_rssi);
+						rssi2 = atoi(str_rssi2);
 						//GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strCMD);
 						//GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
 						CString cur_time; //获取系统时间 　　
@@ -481,13 +485,13 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 
 						cur_time = tm.Format("%Y-%m-%d %X");
 
-						strTmp.Format("%s \r\n温度值:%d;%d;%d Rssi:%d", cur_time,adc1,adc2,adc3,rssi);
+						strTmp.Format("%s \r\n温度值:%d;%d;%d Rssi:%d sRssi:%d", cur_time, adc1, adc2, adc3, rssi, rssi2);
 
 						m_strCMD.Empty();
 						gv_testcase = TEST_RECVICE_STR;
 						KillTimer(gv_testcase);
 
-						int find_sn = UpdateADCResult(str_sn, str_temp1, str_temp2, str_temp3, str_rssi);
+						int find_sn = UpdateADCResult(str_sn, str_temp1, str_temp2, str_temp3, str_rssi,str_rssi2);
 
 						if (find_sn == -1) 
 						{
@@ -497,7 +501,9 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 						m_strReceive.Empty();
 						m_strResult = "";
 
-						if(((adc1<atoi(m_strAdcSampleMaxValue))&&(adc1>atoi(m_strAdcSampleMinValue)))&&((adc2<atoi(m_strAdcSampleMaxValue))&&(adc2>atoi(m_strAdcSampleMinValue)))&&((adc3<atoi(m_strAdcSampleMaxValue))&&(adc3>atoi(m_strAdcSampleMinValue)))&&(rssi>=atoi(m_strRssiValue)))
+						if(((adc1<atoi(m_strAdcSampleMaxValue))&&(adc1>atoi(m_strAdcSampleMinValue)))&&
+							((adc2<atoi(m_strAdcSampleMaxValue))&&(adc2>atoi(m_strAdcSampleMinValue)))&&
+							(rssi >= atoi(m_strRssiValue)) && (rssi2 >= atoi(m_strRssiValue2)))
 						{
 							UpdateTestResult(str_sn,TEST_ADC_SAMPLE,"1");
 							UpdateTestPic(TRUE);
@@ -622,6 +628,7 @@ void CCOMTOOLDlg::OnFileSettings()
 	dlg.m_strAdcSampleMaxValue = m_strAdcSampleMaxValue;
 	dlg.m_strAdcSampleMinValue = m_strAdcSampleMinValue;
 	dlg.m_strRssiValue = m_strRssiValue;
+	dlg.m_strRssiValue2 = m_strRssiValue2;
 	//UpdateData(true);
 	//if(m_bRfidSaveSn)
 	//OnOpenClosePort(TRUE,FALSE);
@@ -668,6 +675,7 @@ void CCOMTOOLDlg::LoadSmallTestToolConfig(void)
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), _T("10"),m_strAdcSampleMaxValue.GetBuffer(MAX_PATH),MAX_PATH,strPath);  
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), _T("40"),m_strAdcSampleMinValue.GetBuffer(MAX_PATH),MAX_PATH, strPath); 
 	::GetPrivateProfileString(_T("SmallBJConfig"), _T("RssiValue"), _T("-70"), m_strRssiValue.GetBuffer(MAX_PATH), MAX_PATH, strPath);
+	::GetPrivateProfileString(_T("SmallBJConfig"), _T("RssiValue2"), _T("-70"), m_strRssiValue2.GetBuffer(MAX_PATH), MAX_PATH, strPath);
 
 }
 
@@ -767,7 +775,7 @@ int CCOMTOOLDlg::UpdateTestResult(CString m_strSn, TESTCASE m_icase, CString m_s
 }
 
 
-int CCOMTOOLDlg::UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_strADC2,CString m_strADC3,CString m_strRssi)
+int CCOMTOOLDlg::UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_strADC2,CString m_strADC3,CString m_strRssi,CString m_strRssi2)
 {
 	CTime time = CTime::GetCurrentTime();
 	CString date = time.Format("%Y-%m-%d %H:%M:%S");
@@ -778,7 +786,7 @@ int CCOMTOOLDlg::UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_str
 	//INSERT INTO SmallBoard_Info VALUES ('00000001', 0,0,0,0)
 	//CString SQL = "select * from Patient_Info order by Patient_ID desc";	
 	//CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('"+m_strSn+"',0,0,0,0,0,'"+date+"')";
-	CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('" + m_strSn + "',0,0,0,0,0,'" + date + "'" + ",0,0,0"")";
+	CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('" + m_strSn + "',0,0,0,0,0,0,'" + date + "'" + ",0,0,0"")";
 	try
 	{
 		m_Ado.m_pRecordset = m_Ado.OpenRecordset(m_ExeSQL);
@@ -805,7 +813,7 @@ int CCOMTOOLDlg::UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_str
 	}
 
 	m_Ado.OnInitADOConn();
-	CString m_ExeSQL2 = "UPDATE SmallBoard_Info SET SBI_LORA_RT =" + m_strRssi + " , ADC1 = " + m_strADC1 + ", ADC2 = " + m_strADC2 +   ", ADC3 = " + m_strADC3 + " WHERE SBI_SN='"+ m_strSn+"'";
+	CString m_ExeSQL2 = "UPDATE SmallBoard_Info SET SBI_LORA_RT =" + m_strRssi + " , SBI_LORA_RT2 = " + m_strRssi2 + " , ADC1 = " + m_strADC1 + ", ADC2 = " + m_strADC2 + ", ADC3 = " + m_strADC3 + " WHERE SBI_SN='" + m_strSn + "'";
 	try
 	{
 	    m_Ado.m_pRecordset = m_Ado.OpenRecordset(m_ExeSQL2);

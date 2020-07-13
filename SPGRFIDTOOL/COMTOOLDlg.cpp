@@ -197,7 +197,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	LKey[6] = '2';
 	LKey[7] = '1';
 
-    CString title = "小板组装RFID工具(03)";        
+    CString title = "RFID写号工具(v105)";        
     SetWindowText(title);
 
 	CString temp;				

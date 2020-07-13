@@ -62,11 +62,12 @@ BOOL CTestResultQueryDlg::OnInitDialog()
 	//m_List.InsertColumn(2,"RTC",LVCFMT_LEFT,102,2);
 	m_List.InsertColumn(1,"ADC",LVCFMT_LEFT,102,1);
 	m_List.InsertColumn(2,"LORA_RSSI",LVCFMT_LEFT,102,2);
+	m_List.InsertColumn(3, "LORA_RSSI2", LVCFMT_LEFT, 102, 3);
 	//m_List.InsertColumn(5,"ATW_STATE",LVCFMT_LEFT,102,5);
-	m_List.InsertColumn(3,"ATW_TIME",LVCFMT_LEFT,200,3);
-	m_List.InsertColumn(4,"ADC1",LVCFMT_LEFT,102,4);
-	m_List.InsertColumn(5,"ADC2",LVCFMT_LEFT,102,5);
-	m_List.InsertColumn(6,"ADC3",LVCFMT_LEFT,102,6);
+	m_List.InsertColumn(4,"ATW_TIME",LVCFMT_LEFT,200,4);
+	m_List.InsertColumn(5,"ADC1",LVCFMT_LEFT,102,5);
+	m_List.InsertColumn(6,"ADC2",LVCFMT_LEFT,102,6);
+	m_List.InsertColumn(7,"STEP",LVCFMT_LEFT,102,7);
 	//!连接数据库
 	RunAdoSQL("select * from SmallBoard_Info order by SBI_SN asc"); //desc
 	AddToList(1);
@@ -99,12 +100,13 @@ void CTestResultQueryDlg::AddToList(int flag)   // flag 1: 向后查询; 0: 向后查询
 			//m_List.SetItemText(0,2,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_RTC"));
 			m_List.SetItemText(0,1,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
 			m_List.SetItemText(0,2,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
+			m_List.SetItemText(0,3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT2"));
 			//m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
-			m_List.SetItemText(0,3,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
+			m_List.SetItemText(0,4,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
 
-			m_List.SetItemText(0,4,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
-			m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
-			m_List.SetItemText(0,6,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
+			m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
+			m_List.SetItemText(0,6,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
+			m_List.SetItemText(0,7,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
 
 			//!将记录集指针移动到下一条记录
 			m_Ado.m_pRecordset->MoveNext();
@@ -141,12 +143,13 @@ void CTestResultQueryDlg::AddToList(int flag)   // flag 1: 向后查询; 0: 向后查询
 			//m_List.SetItemText(0,2,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_RTC"));
 			m_List.SetItemText(0,1,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
 			m_List.SetItemText(0,2,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
+			m_List.SetItemText(0, 3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT2"));
 			//m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
-			m_List.SetItemText(0,3,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
+			m_List.SetItemText(0,4,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
 
-			m_List.SetItemText(0,4,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
-			m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
-			m_List.SetItemText(0,6,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
+			m_List.SetItemText(0,5,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
+			m_List.SetItemText(0,6,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
+			m_List.SetItemText(0,7,(char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
 		}
 	}
 

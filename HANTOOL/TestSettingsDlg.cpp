@@ -16,6 +16,7 @@ CTestSettingsDlg::CTestSettingsDlg(CWnd* pParent /*=NULL*/)
 	, m_strAdcSampleMaxValue(_T(""))
 	, m_strAdcSampleMinValue(_T(""))
 	, m_strRssiValue(_T(""))
+	, m_strRssiValue2(_T(""))
 {
 
 }
@@ -34,6 +35,7 @@ void CTestSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_ADC_SAMPLE_VALUE_MIN, m_strAdcSampleMinValue);
 	DDV_MaxChars(pDX, m_strAdcSampleMinValue, 30);
 	DDX_Text(pDX, IDC_EDIT_RSSI_VALUE, m_strRssiValue);
+	DDX_Text(pDX, IDC_EDIT_RSSI_VALUE2, m_strRssiValue2);
 }
 
 
@@ -64,5 +66,6 @@ void CTestSettingsDlg::SaveSmallTestToolConfig(void)
     ::WritePrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), m_strAdcSampleMaxValue, strPath);  
     ::WritePrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), m_strAdcSampleMinValue, strPath);
 	::WritePrivateProfileString(_T("SmallBJConfig"), _T("RssiValue"), m_strRssiValue, strPath);
+	::WritePrivateProfileString(_T("SmallBJConfig"), _T("RssiValue2"), m_strRssiValue2, strPath);
 
 }

@@ -26,4 +26,5 @@ public:
 	void SaveSmallTestToolConfig(void);
 
 	CString m_strRssiValue;
+	CString m_strRssiValue2;
 };

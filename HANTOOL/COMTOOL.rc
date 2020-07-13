@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(简体，中国) resources
+// Chinese (Simplified, PRC) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -65,7 +65,6 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\COMTOOL.ico"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -84,7 +83,7 @@ END
 
 IDD_COMTOOL_DIALOG DIALOGEX 0, 0, 468, 335
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
-EXSTYLE WS_EX_APPWINDOW
+EXSTYLE WS_EX_STATICEDGE | WS_EX_APPWINDOW
 CAPTION "小板生产工具(301)"
 MENU IDR_MENU1
 FONT 9, "宋体", 0, 0, 0x1
@@ -97,11 +96,11 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,227,280,223,41,NOT WS_VISIBLE
     EDITTEXT        IDC_EDIT2,22,151,425,152,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
     PUSHBUTTON      "清空接收数据",IDC_BUTTON2,307,26,65,15
-    EDITTEXT        IDC_EDIT_STATUS,158,72,243,33,ES_MULTILINE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_STATUS,158,72,255,33,ES_MULTILINE | ES_AUTOHSCROLL
     GROUPBOX        "串口接收数据:",IDC_STATIC,16,137,438,172
     GROUPBOX        "测试状态显示:",IDC_STATIC,14,57,440,63
-    CONTROL         "",IDC_PIC,"Static",SS_BITMAP,407,73,15,14
-    EDITTEXT        IDC_EDIT1,21,71,132,34,ES_AUTOHSCROLL
+	CONTROL         "", IDC_PIC, "Static", SS_BITMAP, 416, 72, 33, 33, NOT WS_GROUP
+    EDITTEXT        IDC_EDIT1,21,71,123,34,ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_SETTINGS DIALOGEX 0, 0, 441, 222
@@ -115,8 +114,10 @@ BEGIN
     EDITTEXT        IDC_EDIT_ADC_SAMPLE_VALUE_MIN,138,98,160,14,ES_AUTOHSCROLL
     PUSHBUTTON      "保存",IDC_BUTTON_SAVE,226,192,66,14
     PUSHBUTTON      "退出",IDOK,332,192,66,14
-    LTEXT           "RSSI信号(负值):",IDC_STATIC,50,131,59,8
-    EDITTEXT        IDC_EDIT_RSSI_VALUE,137,128,160,14,ES_AUTOHSCROLL
+    LTEXT           "RSSI信号(负值):",IDC_STATIC,50,128,59,8
+    EDITTEXT        IDC_EDIT_RSSI_VALUE,137,124,160,14,ES_AUTOHSCROLL
+    LTEXT           "小板RSSI信号(负值):",IDC_STATIC,49,152,73,8
+    EDITTEXT        IDC_EDIT_RSSI_VALUE2,137,151,160,14,ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_TESTRESULT_QUERY DIALOGEX 0, 0, 459, 263
@@ -244,19 +245,19 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
-IDD_DIALOG_SETTINGS AFX_DIALOG_LAYOUT
+IDD_DIALOG_SETTINGS AFX_DIALOG_LAYOUT 
 BEGIN
-    0
+    0x0000
 END
 
-IDD_COMTOOL_DIALOG AFX_DIALOG_LAYOUT
+IDD_COMTOOL_DIALOG AFX_DIALOG_LAYOUT 
 BEGIN
-    0
+    0x0000
 END
 
-IDD_DIALOG_TESTRESULT_QUERY AFX_DIALOG_LAYOUT
+IDD_DIALOG_TESTRESULT_QUERY AFX_DIALOG_LAYOUT 
 BEGIN
-    0
+    0x0000
 END
 
 
@@ -266,11 +267,8 @@ END
 //
 
 IDB_BITMAP2             BITMAP                  "res\\bitmap2.bmp"
-
 IDB_BITMAP3             BITMAP                  "res\\bitmap3.bmp"
-
 IDB_BITMAP4             BITMAP                  "res\\bitmap4.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -282,7 +280,7 @@ BEGIN
     IDS_ABOUTBOX            "关于 COMTOOL(&A)..."
 END
 
-#endif    // 中文(简体，中国) resources
+#endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

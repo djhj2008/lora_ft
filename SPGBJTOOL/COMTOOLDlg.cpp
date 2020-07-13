@@ -179,7 +179,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	LKey[6] = '2';
 	LKey[7] = '1';
 
-    CString title = "小板生产工具(v105)";        
+    CString title = "板机生产工具(v105)";        
     SetWindowText(title);
 
 	CString temp;				
