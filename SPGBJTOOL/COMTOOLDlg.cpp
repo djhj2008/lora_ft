@@ -179,7 +179,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	LKey[6] = '2';
 	LKey[7] = '1';
 
-    CString title = "板机生产工具(v105)";        
+    CString title = "板机生产工具(v112)";        
     SetWindowText(title);
 
 	CString temp;				
@@ -410,8 +410,6 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 			strTmp = "STEP:等待获取步数\r\n";
 			m_strTestStatus = m_strTestStatus + strTmp;
 			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-			GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
-			GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
 			KillTimer(TEST_STEP_START);
 			m_retry_count = TEST_STEP_COUNT_MAX;
 			gv_testcase = TEST_STEP_COUNT;
@@ -434,6 +432,12 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 		  m_strTestStatus = m_strTestStatus+"RTC测试失败\r\n";
           GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
 		  break;
+	case TEST_ADC_CALI:
+			UpdateTestResult(m_strSnEdit, TEST_ADC_CALI, "2");
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			m_strTestStatus = m_strTestStatus + "ADC校准失败\r\n";
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			break;
 	case TEST_ADC_SAMPLE:
 		  UpdateTestResult(m_strSnEdit,TEST_ADC_SAMPLE,"2");
 		  GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
@@ -450,11 +454,11 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 		  break;
 	case TEST_ATW_STATE:
 	case TEST_ADC_SAMPLE_STATE:
-		  UpdateTestResult(m_strSnEdit,TEST_ATW_STATE,"2");
-		  GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-		  m_strTestStatus = m_strTestStatus+"进入采样状态失败!!!\r\n";
-          GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
-		break;
+			UpdateTestResult(m_strSnEdit,TEST_ATW_STATE,"2");
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			m_strTestStatus = m_strTestStatus+"进入采样状态失败!!!\r\n";
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			break;
 	case TEST_SUCCEED_WAIT_NEXT:
 		{
 			KillTimer(nIDEvent);
@@ -643,10 +647,84 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
            GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
 		
            GetDlgItem(IDC_EDIT2)->SetWindowText("");
-           gv_testcase = TEST_ADC_SAMPLE;
-		   strsend = "ATA\r\n";
+		   gv_testcase = TEST_ADC_CALI;
+		   strsend = "ATD1\r\n";
 	       m_SerialPort.WriteToPort(strsend.GetBuffer(0),strsend.GetLength());
 		   SetTimer(gv_testcase,10*1000,NULL);
+		}
+
+		break;
+	case TEST_ADC_CALI:
+		//AT+TEMP:7115b0,7066f6
+		if (m_strReceive.Find("ATDCOK") >= 0){
+			pos1 = m_strReceive.Find("ATDCOK:");
+			if (pos1 >= 0)
+			{
+				pos2 = m_strReceive.Find(",", pos1);
+				if (pos2 >= 0)
+				{
+					//pos3 = m_strReceive.Find("\r\n",pos2);
+					pos3 = m_strReceive.Find(",", pos2 + 1);
+					if (pos3 >= 0)
+					{
+						pos4 = m_strReceive.Find("\r\n", pos3 + 1);
+						if (pos4 >= 0)
+						{
+							CString str_adc1, str_adc2, str_adc3;
+							int adc1, adc2, adc3;
+							int adc_cali_max = 10 * 1000 + atoi(m_strAdcCaliValue);
+							int adc_cali_min = 10 * 1000 - atoi(m_strAdcCaliValue);
+							str_adc1 = m_strReceive.Mid(pos1 + 7, pos2 - (pos1 + 7));
+							str_adc2 = m_strReceive.Mid(pos2 + 1, pos3 - pos2 - 1);
+							str_adc3 = m_strReceive.Mid(pos3 + 1, pos4 - pos3 - 1);
+							adc1 = atoi(str_adc1);
+							adc2 = atoi(str_adc2);
+							adc3 = atoi(str_adc3);
+							GetDlgItem(IDC_EDIT2)->SetWindowText("");
+							GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+							strTmp.Format("ADC校准:%d;%d;%d\r\n", adc1, adc2, adc3);
+
+							m_strReceive = "";
+							GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+							KillTimer(gv_testcase);
+							if ((adc1>adc_cali_min&&adc1<adc_cali_max) && (adc2>adc_cali_min&&adc2<adc_cali_max) && (adc3>adc_cali_min&&adc3<adc_cali_max))
+							{
+								UpdateTestResult(m_strSnEdit, TEST_ADC_CALI, "1");
+								strTmp = strTmp + "ADC校准成功\r\n";
+								m_strTestStatus = m_strTestStatus + strTmp;
+								GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+
+								gv_testcase = TEST_ADC_SAMPLE;
+								strsend = "ATA\r\n";
+								m_SerialPort.WriteToPort(strsend.GetBuffer(0), strsend.GetLength());
+								SetTimer(gv_testcase, 10 * 1000, NULL);
+							}
+							else
+							{
+								UpdateTestResult(m_strSnEdit, TEST_ADC_CALI, "2");
+								strTmp = strTmp + "ADC校准超出范围\r\n";
+								m_strTestStatus = m_strTestStatus + strTmp;
+								GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+								GetDlgItem(IDC_EDIT2)->SetWindowText("");
+								GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
+								GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
+								GetDlgItem(IDC_EDIT_SN)->SetFocus();
+							}
+						}
+					}
+				}
+			}
+		}
+		else if (m_strReceive.Find("ATDCERR") >= 0){
+			m_strReceive = "";
+			GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
+			KillTimer(gv_testcase);
+			GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
+			UpdateTestResult(m_strSnEdit, TEST_ADC_CALI, "3");
+			strTmp = "ADC校准失败\r\n";
+			m_strTestStatus = m_strTestStatus + strTmp;
+			GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
+			GetDlgItem(IDC_EDIT2)->SetWindowText("");
 		}
 
 		break;
@@ -676,7 +754,7 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
                         adc3 = atoi(str_adc3);
 						GetDlgItem(IDC_EDIT2)->SetWindowText("");
 						GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
-						strTmp.Format("ADC采样值:%d;%d;%d",adc1,adc2,adc3);
+						strTmp.Format("ADC采样值:%d;%d;%d\r\n",adc1,adc2,adc3);
 
 						UpdateADCResult(m_strSnEdit,str_adc1,str_adc2,str_adc3);
 						m_strReceive= "";
@@ -753,7 +831,7 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 					GetDlgItem(IDC_EDIT2)->SetWindowText("");
 					GetDlgItem(IDC_EDIT_STATUS)->GetWindowText(m_strTestStatus);
 					strTmp = m_strTestFreq.GetBuffer();
-					strTmp = "Lora频率:" + strTmp + " RX:" + str_rx_rssi + "TX:" + str_tx_rssi + ",收发测试成功\r\n";
+					strTmp = "Lora频率:" + strTmp + " RX:" + str_rx_rssi + ",TX:" + str_tx_rssi + ",收发测试成功\r\n";
 					m_strTestStatus = m_strTestStatus + strTmp;
 					GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
 
@@ -846,7 +924,7 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
            GetDlgItem(IDC_EDIT_SN)->EnableWindow(1);
            GetDlgItem(IDC_EDIT_SN)->SetWindowText("");
 		   GetDlgItem(IDC_EDIT_SN)->SetFocus();
-           strTmp = "已经进入采样状态!!!\r\n";
+           strTmp = "已经进入采样状态!!!\r\n测试成功，等待下一个测试!!!\r\n";
 		   m_strTestStatus = m_strTestStatus+strTmp;
            GetDlgItem(IDC_EDIT_STATUS)->SetWindowText(m_strTestStatus);
 		   gv_testcase = TEST_SUCCEED_WAIT_NEXT;
@@ -961,6 +1039,7 @@ void CCOMTOOLDlg::OnFileSettings()
 	dlg.m_strRxrssi = m_strRxrssi;
 	dlg.m_strTxrssi = m_strTxrssi;
 	dlg.m_checkStep = m_checkStep;
+	dlg.m_strAdcCaliValue = m_strAdcCaliValue;
 
 	dlg.DoModal();
     LoadSmallTestToolConfig();
@@ -1082,8 +1161,9 @@ void CCOMTOOLDlg::LoadSmallTestToolConfig(void)
 
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("TestFreq"), _T("440000000"), m_strTestFreq.GetBuffer(MAX_PATH),MAX_PATH, strPath);
     ::GetPrivateProfileString(_T("SmallBJConfig"), _T("WorkFreq"), _T("433000000"), m_strWorkFreq.GetBuffer(MAX_PATH),MAX_PATH, strPath);
-    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), _T("2294612"),m_strAdcSampleMaxValue.GetBuffer(MAX_PATH),MAX_PATH,strPath);  
-    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), _T("1802342"),m_strAdcSampleMinValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);  
+    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), _T("385"),m_strAdcSampleMaxValue.GetBuffer(MAX_PATH),MAX_PATH,strPath);  
+    ::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), _T("375"),m_strAdcSampleMinValue.GetBuffer(MAX_PATH),MAX_PATH, strPath);
+	::GetPrivateProfileString(_T("SmallBJConfig"), _T("AdcCaliValue"), _T("100"), m_strAdcCaliValue.GetBuffer(MAX_PATH), MAX_PATH, strPath);
 	::GetPrivateProfileString(_T("SmallBJConfig"), _T("TXRSSI"), _T("-80"), m_strTxrssi.GetBuffer(MAX_PATH), MAX_PATH, strPath);
 	::GetPrivateProfileString(_T("SmallBJConfig"), _T("RXRSSI"), _T("-80"), m_strRxrssi.GetBuffer(MAX_PATH), MAX_PATH, strPath);
 
@@ -1123,7 +1203,7 @@ int CCOMTOOLDlg::AddNewSPgBoardItem(CString m_strSn)
 	//INSERT INTO SmallBoard_Info VALUES ('00000001', 0,0,0,0)
 	//CString SQL = "select * from Patient_Info order by Patient_ID desc";	
 	//CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('"+m_strSn+"',0,0,0,0,0,'"+date+"')";
-	CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('"+m_strSn+"',0,0,0,0,0,'"+date+"'"+",0,0,0"")";
+	CString m_ExeSQL = "INSERT INTO SmallBoard_Info VALUES ('"+m_strSn+"',0,0,0,0,0,0,'"+date+"'"+",0,0,0"")";
 	try
 	{
 	    m_Ado.m_pRecordset = m_Ado.OpenRecordset(m_ExeSQL);
@@ -1145,8 +1225,9 @@ int CCOMTOOLDlg::AddNewSPgBoardItem(CString m_strSn)
 				int adc = m_Ado.m_pRecordset->GetCollect("SBI_ADC");
 				int lora_rt = m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT");
 				int atw_state = m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE");
+				int adc_cali = m_Ado.m_pRecordset->GetCollect("SBI_ADC_CALI");
 				CString strTime = (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME");
-				if((rtc==1)&&(adc==1)&&(lora_rt==1)&&(atw_state==1)) // 所有测试都已经成功，重复扫描，测试不往下进行。如果需要重新测试，先从数据库里把这条记录删除
+				if ((rtc == 1) && (adc == 1) && (lora_rt == 1) && (atw_state == 1) && (adc_cali==1)) // 所有测试都已经成功，重复扫描，测试不往下进行。如果需要重新测试，先从数据库里把这条记录删除
 				{
 					m_Ado.CloseRecordset();
 					m_Ado.CloseConn();
@@ -1198,6 +1279,9 @@ int CCOMTOOLDlg::UpdateTestResult(CString m_strSn, TESTCASE m_icase, CString m_s
 		break;
 	case TEST_ADC_SAMPLE_STATE:
 		strField = "SBI_TIME";
+		break;
+	case TEST_ADC_CALI:
+		strField = "SBI_ADC_CALI";
 		break;
 	default:
 		break;

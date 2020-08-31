@@ -197,7 +197,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 	LKey[6] = '2';
 	LKey[7] = '1';
 
-    CString title = "RFID写号工具(v105)";        
+    CString title = "RFID写号工具(v106)";        
     SetWindowText(title);
 
 	CString temp;				
@@ -375,7 +375,7 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 			int Length = 0;
 			CString m_strSnWrite;
 
-			m_strSnWrite = m_strSnEdit+"FFF";
+			m_strSnWrite = m_strSnEdit+"FFFFFFFFFFFFFFF";
 			memset(gv_Label,0,sizeof(gv_Label));
 			Length = m_strSnWrite.GetLength()/2;
 			gv_Label[0] = Length;
@@ -405,11 +405,9 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 
 			cmd_buf[cmdLen++] = cmdAddr;
 			cmd_buf[cmdLen++] = cmd;
-			//WNum	ENum	EPC	Mem	WordPtr	Wdt	Pwd	MaskAdr	MaskLen
-			char WNum = 0x04;
 			//ENum
 			//char ENum = 0x06;
-			char ENum = 0x03;
+			char ENum = 0x06;
 			//cmd_buf[cmdLen++] = WNum;
 			cmd_buf[cmdLen++] = ENum;
 
@@ -421,8 +419,8 @@ void CCOMTOOLDlg::OnTimer(UINT nIDEvent)
 			memcpy(cmd_buf + cmdLen, accessPwd, 4); // Pwd
 			cmdLen = cmdLen + 4;
 			//EPC
-			memcpy(cmd_buf + cmdLen, gv_Label + 1, ENum * 2);    // EPC 
-			cmdLen = cmdLen + ENum * 2;
+			memcpy(cmd_buf + cmdLen, gv_Label + 1, ENum*2 );    // EPC 
+			cmdLen = cmdLen + ENum*2;
 			cmd_buf[0] = cmdLen + 1;
 			uiCrcValue = uiCrc16Cal((unsigned char *)cmd_buf, cmdLen);
 			memcpy(cmd_buf + cmdLen, &uiCrcValue, 2);

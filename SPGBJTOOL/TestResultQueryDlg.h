@@ -42,4 +42,6 @@ public:
 	
 	afx_msg void OnBnClickedSearchButton();
 	afx_msg void OnBnClickedListAll();
+	afx_msg void OnBnClickedSearchButton2();
+	afx_msg void OnBnClickedSearchButton3();
 };

@@ -20,6 +20,7 @@ CTestSettingsDlg::CTestSettingsDlg(CWnd* pParent /*=NULL*/)
 	, m_strRxrssi(_T(""))
 	, m_strTxrssi(_T(""))
 	, m_checkStep(FALSE)
+	, m_strAdcCaliValue(_T(""))
 {
 
 }
@@ -43,6 +44,7 @@ void CTestSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_RX_RSSI, m_strRxrssi);
 	DDX_Text(pDX, IDC_EDIT_TX_RSSI, m_strTxrssi);
 	DDX_Check(pDX, IDC_CHECK_STEP, m_checkStep);
+	DDX_Text(pDX, IDC_EDIT_ADC_CALI_SETTING, m_strAdcCaliValue);
 }
 
 BEGIN_MESSAGE_MAP(CTestSettingsDlg, CDialogEx)
@@ -72,6 +74,7 @@ void CTestSettingsDlg::SaveSmallTestToolConfig(void)
     ::WritePrivateProfileString(_T("SmallBJConfig"), _T("WorkFreq"), m_strWorkFreq, strPath);
     ::WritePrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMaxValue"), m_strAdcSampleMaxValue, strPath);  
     ::WritePrivateProfileString(_T("SmallBJConfig"), _T("AdcSampleMinValue"), m_strAdcSampleMinValue, strPath);
+	::WritePrivateProfileString(_T("SmallBJConfig"), _T("AdcCaliValue"), m_strAdcCaliValue, strPath);
 	::WritePrivateProfileString(_T("SmallBJConfig"), _T("TXRSSI"), m_strTxrssi, strPath);
 	::WritePrivateProfileString(_T("SmallBJConfig"), _T("RXRSSI"), m_strRxrssi, strPath);
 	if (m_checkStep)

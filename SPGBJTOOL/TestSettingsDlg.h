@@ -28,4 +28,5 @@ public:
 	CString m_strRxrssi;
 	CString m_strTxrssi;
 	BOOL m_checkStep;
+	CString m_strAdcCaliValue;
 };

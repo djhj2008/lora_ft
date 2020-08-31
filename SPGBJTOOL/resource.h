@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 供 COMTOOL.rc 使用
+// Microsoft Visual C++ generated include file.
+// Used by COMTOOL.rc
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
@@ -70,11 +70,14 @@
 #define IDC_SEARCH_BUTTON               1067
 #define IDC_STATIC_RF                   1068
 #define IDC_STATIC_RFPORT               1068
+#define IDC_SEARCH_BUTTON2              1068
 #define IDC_EDIT_RFEPC                  1069
 #define IDC_EDIT_WORK_FREQ              1069
 #define IDC_CHECK1                      1070
+#define IDC_SEARCH_BUTTON3              1070
 #define IDC_EDIT_WORK_FREQ_SETTING      1071
 #define IDC_LIST_ALL                    1072
+#define IDC_EDIT_ADC_CALI_SETTING       1072
 #define IDC_EDIT_ADC_SAMPLE_VALUE_MIN   1075
 #define ID_FILE_SETTINGS                32771
 #define ID_Menu                         32772

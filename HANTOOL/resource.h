@@ -77,6 +77,9 @@
 #define IDC_EDIT_WORK_FREQ_SETTING      1071
 #define IDC_PIC                         1072
 #define IDC_SEARCH_BUTTON               1073
+#define IDC_SEARCH_BUTTON2              1074
+#define IDC_SEARCH_BUTTON3              1075
+#define IDC_SEARCH_BUTTON4              1076
 #define ID_FILE_SETTINGS                32771
 #define ID_Menu                         32772
 #define ID_Menu_TEST_RESULT_QUERY       32773

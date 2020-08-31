@@ -46,6 +46,8 @@ BEGIN_MESSAGE_MAP(CTestResultQueryDlg, CDialogEx)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CTestResultQueryDlg::OnLvnItemchangedList1)
 	ON_BN_CLICKED(IDC_SEARCH_BUTTON, &CTestResultQueryDlg::OnBnClickedSearchButton)
 	ON_BN_CLICKED(IDC_LIST_ALL, &CTestResultQueryDlg::OnBnClickedListAll)
+	ON_BN_CLICKED(IDC_SEARCH_BUTTON2, &CTestResultQueryDlg::OnBnClickedSearchButton2)
+	ON_BN_CLICKED(IDC_SEARCH_BUTTON3, &CTestResultQueryDlg::OnBnClickedSearchButton3)
 END_MESSAGE_MAP()
 
 
@@ -192,7 +194,7 @@ int CTestResultQueryDlg::RunAdoSQL(CString m_strSQL)
 	pages = m_Ado.Count/LIST_MAXITEM +1;
 	if(m_Ado.Count==0)
 		pages=0;
-	strTmp.Format("总共%d页",pages);
+	strTmp.Format("总共%d页,%d条", pages, m_Ado.Count);
 	GetDlgItem(IDC_EDIT_PAGE_STATUS)->SetWindowText(strTmp);
 	return 0;
 }
@@ -293,5 +295,21 @@ void CTestResultQueryDlg::OnBnClickedListAll()
 {
 	// TODO: Add your control notification handler code here
 	RunAdoSQL("select * from SmallBoard_Info order by SBI_SN asc"); //desc
+	AddToList(1);
+}
+
+
+void CTestResultQueryDlg::OnBnClickedSearchButton2()
+{
+	// TODO: Add your control notification handler code here
+	RunAdoSQL("select * from SmallBoard_Info where SBI_ADC=1 order by SBI_SN asc"); //desc
+	AddToList(1);
+}
+
+
+void CTestResultQueryDlg::OnBnClickedSearchButton3()
+{
+	// TODO: Add your control notification handler code here
+	RunAdoSQL("select * from SmallBoard_Info where SBI_ADC=0 or SBI_ADC=2 order by SBI_SN asc"); //desc
 	AddToList(1);
 }

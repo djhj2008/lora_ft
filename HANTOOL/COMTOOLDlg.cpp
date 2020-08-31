@@ -143,7 +143,7 @@ BOOL CCOMTOOLDlg::OnInitDialog()
 
     CString Tmp,Tmp1;
 
-    CString title = "整机测试工具(v301)";        
+    CString title = "整机测试工具(v312)";        
     SetWindowText(title);
 
 	//设置静态文本字体大小
@@ -279,24 +279,11 @@ void CCOMTOOLDlg::OnSend()
 	}
 	dwStartOk = ::GetTickCount();
 
+	//doujun
 	//OnReceiveChar(0x65,1);
 	//OnReceiveChar(0x0d,1);
 	//OnReceiveChar(0x0a,1);
-	/*
-	HWND hWnd = ::FindWindowW(L"Notepad", NULL); //搜索记事本程序主窗口句柄 
-	HWND hWndc = ::GetWindow(hWnd, GW_CHILD); //获得记事本客户区句柄（该窗口是记事本主窗口的子窗口，即那个白色的可编辑区域） 
-	if (hWndc){
-		::SendMessage(hWndc, WM_CHAR, '0', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '0', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '0', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '3', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '0', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '0', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '2', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '8', NULL);//发送按键消息
-		::SendMessage(hWndc, WM_CHAR, '1', NULL);//发送按键消息
-	}
-	*/
+	//doujun end
 
 	if (m_strStatus == "关闭")
 	{
@@ -439,7 +426,9 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 	m_strCMD += (char)ch;
 	
     GetDlgItem(IDC_EDIT2)->SetWindowText(m_strReceive);
-	//m_strCMD = "PGSN:000050003;Temp:22,26,21;Rssi:-58;sRssi:-68\r\n\r\n";
+	//doujun
+	//m_strCMD = "PGSN:000030009;Temp:28,29,0;Rssi:-63;sRssi:0\r\n\r\n";
+	//doujun end
 	switch(gv_testcase)
 	{
 	case TEST_ADC_SAMPLE:
@@ -490,6 +479,10 @@ LRESULT CCOMTOOLDlg::OnReceiveChar(UINT ch, LONG port)
 						m_strCMD.Empty();
 						gv_testcase = TEST_RECVICE_STR;
 						KillTimer(gv_testcase);
+
+						if (rssi2 == 0){
+							break;
+						}
 
 						int find_sn = UpdateADCResult(str_sn, str_temp1, str_temp2, str_temp3, str_rssi,str_rssi2);
 
@@ -802,7 +795,10 @@ int CCOMTOOLDlg::UpdateADCResult(CString m_strSn,CString m_strADC1,CString m_str
 			m_Ado.m_pRecordset = m_Ado.OpenRecordset(m_ExeSQL);
 			if (m_Ado.GetRecordCount(m_Ado.m_pRecordset) == 1)
 			{
-				return -1;
+				int adc = m_Ado.m_pRecordset->GetCollect("SBI_ADC");
+				if (adc == 1){
+					return -1;
+				}
 			}
 			m_Ado.CloseRecordset();
 			m_Ado.CloseConn();

@@ -50,6 +50,8 @@ BEGIN_MESSAGE_MAP(CTestResultQueryDlg, CDialogEx)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CTestResultQueryDlg::OnLvnItemchangedList1)
 	ON_BN_CLICKED(IDC_SEARCH_BUTTON, &CTestResultQueryDlg::OnBnClickedSearchButton)
 	ON_BN_CLICKED(IDC_LIST_ALL, &CTestResultQueryDlg::OnBnClickedListAll)
+	ON_BN_CLICKED(IDC_SEARCH_BUTTON2, &CTestResultQueryDlg::OnBnClickedSearchButton2)
+	ON_BN_CLICKED(IDC_SEARCH_BUTTON3, &CTestResultQueryDlg::OnBnClickedSearchButton3)
 END_MESSAGE_MAP()
 
 
@@ -64,13 +66,14 @@ BOOL CTestResultQueryDlg::OnInitDialog()
 	m_List.InsertColumn(0,"SN",LVCFMT_LEFT,102,0);
 	m_List.InsertColumn(1,"STEP",LVCFMT_LEFT,102,1);
 	m_List.InsertColumn(2,"RTC",LVCFMT_LEFT,102,2);
-	m_List.InsertColumn(3,"ADC",LVCFMT_LEFT,102,3);
-	m_List.InsertColumn(4,"LORA_RT",LVCFMT_LEFT,102,4);
-	m_List.InsertColumn(5,"ATW_STATE",LVCFMT_LEFT,102,5);
-	m_List.InsertColumn(6,"ATW_TIME",LVCFMT_LEFT,200,6);
-	m_List.InsertColumn(7,"ADC1",LVCFMT_LEFT,102,7);
-	m_List.InsertColumn(8,"ADC2",LVCFMT_LEFT,102,8);
-	m_List.InsertColumn(9,"ADC3",LVCFMT_LEFT,102,9);
+	m_List.InsertColumn(3,"ADC_CALI", LVCFMT_LEFT, 102, 3);
+	m_List.InsertColumn(4,"ADC",LVCFMT_LEFT,102,3);
+	m_List.InsertColumn(5,"LORA_RT",LVCFMT_LEFT,102,4);
+	m_List.InsertColumn(6,"ATW_STATE",LVCFMT_LEFT,102,5);
+	m_List.InsertColumn(7,"ATW_TIME",LVCFMT_LEFT,200,6);
+	m_List.InsertColumn(8,"ADC1",LVCFMT_LEFT,102,7);
+	m_List.InsertColumn(9,"ADC2",LVCFMT_LEFT,102,8);
+	m_List.InsertColumn(10,"ADC3",LVCFMT_LEFT,102,9);
 	//!连接数据库
 	RunAdoSQL("select * from SmallBoard_Info order by SBI_SN asc"); //desc
 	AddToList(1);
@@ -101,14 +104,15 @@ void CTestResultQueryDlg::AddToList(int flag)   // flag 1: 向后查询; 0: 向后查询
 			m_List.SetItemText(0, 0, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_SN"));
 			m_List.SetItemText(0, 1, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_STEP"));
 			m_List.SetItemText(0, 2, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_RTC"));
-			m_List.SetItemText(0, 3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
-			m_List.SetItemText(0, 4, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
-			m_List.SetItemText(0, 5, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
-			m_List.SetItemText(0, 6, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
+			m_List.SetItemText(0, 3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC_CALI"));
+			m_List.SetItemText(0, 4, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
+			m_List.SetItemText(0, 5, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
+			m_List.SetItemText(0, 6, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
+			m_List.SetItemText(0, 7, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
 
-			m_List.SetItemText(0, 7, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
-			m_List.SetItemText(0, 8, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
-			m_List.SetItemText(0, 9, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
+			m_List.SetItemText(0, 8, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
+			m_List.SetItemText(0, 9, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
+			m_List.SetItemText(0, 10, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
 
 			//!将记录集指针移动到下一条记录
 			m_Ado.m_pRecordset->MoveNext();
@@ -143,14 +147,15 @@ void CTestResultQueryDlg::AddToList(int flag)   // flag 1: 向后查询; 0: 向后查询
 			m_List.SetItemText(0, 0, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_SN"));
 			m_List.SetItemText(0, 1, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_STEP"));
 			m_List.SetItemText(0, 2, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_RTC"));
-			m_List.SetItemText(0, 3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
-			m_List.SetItemText(0, 4, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
-			m_List.SetItemText(0, 5, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
-			m_List.SetItemText(0, 6, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
+			m_List.SetItemText(0, 3, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC_CALI"));
+			m_List.SetItemText(0, 4, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ADC"));
+			m_List.SetItemText(0, 5, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_LORA_RT"));
+			m_List.SetItemText(0, 6, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_ATW_STATE"));
+			m_List.SetItemText(0, 7, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("SBI_TIME"));
 
-			m_List.SetItemText(0, 7, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
-			m_List.SetItemText(0, 8, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
-			m_List.SetItemText(0, 9, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
+			m_List.SetItemText(0, 8, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC1"));
+			m_List.SetItemText(0, 9, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC2"));
+			m_List.SetItemText(0, 10, (char*)(_bstr_t)m_Ado.m_pRecordset->GetCollect("ADC3"));
 		}
 	}
 
@@ -193,7 +198,7 @@ int CTestResultQueryDlg::RunAdoSQL(CString m_strSQL)
 	pages = m_Ado.Count/LIST_MAXITEM +1;
 	if(m_Ado.Count==0)
 		pages=0;
-	strTmp.Format("总共%d页",pages);
+	strTmp.Format("总共%d页,%d条", pages,m_Ado.Count);
 	GetDlgItem(IDC_EDIT_PAGE_STATUS)->SetWindowText(strTmp);
 	return 0;
 }
@@ -246,7 +251,7 @@ void CTestResultQueryDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
 		m_strRTC = "超时检测失败";
 	}
 
-	m_strADC  = m_List.GetItemText(m_pos,3); //ADC
+	m_strADC  = m_List.GetItemText(m_pos,4); //ADC
 	if(m_strADC=="0")
 	{
 	  m_strADC = "未检测";
@@ -264,7 +269,7 @@ void CTestResultQueryDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
 		m_strRTC = "超时检测失败";
 	}
 
-	m_strLORA  = m_List.GetItemText(m_pos,4);//LORA
+	m_strLORA  = m_List.GetItemText(m_pos,5);//LORA
 
 	if(m_strLORA=="0")
 	{
@@ -287,7 +292,7 @@ void CTestResultQueryDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
 		m_strLORA = "检测失败:结果返回超时";
 	}
 
-	m_strATW  = m_List.GetItemText(m_pos,5);//ATW
+	m_strATW  = m_List.GetItemText(m_pos,6);//ATW
 	if(m_strATW=="0")
 	{
 	  m_strATW = "状态未切换";
@@ -304,7 +309,7 @@ void CTestResultQueryDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		m_strATW = "ATWOK";
 	}
-	m_strTime = m_List.GetItemText(m_pos,6);
+	m_strTime = m_List.GetItemText(m_pos,7);
 	GetDlgItem(IDC_BUTTON_DEL)->EnableWindow(1);
 	UpdateData(FALSE);
 }
@@ -347,5 +352,23 @@ void CTestResultQueryDlg::OnBnClickedListAll()
 {
 	// TODO: Add your control notification handler code here
 	RunAdoSQL("select * from SmallBoard_Info order by SBI_SN asc"); //desc
+	AddToList(1);
+}
+
+
+void CTestResultQueryDlg::OnBnClickedSearchButton2()
+{
+	// TODO: Add your control notification handler code here
+	CString strExe = "select * from SmallBoard_Info where SBI_ATW_STATE=1 order by SBI_SN asc";
+	RunAdoSQL(strExe); //desc
+	AddToList(1);
+}
+
+
+void CTestResultQueryDlg::OnBnClickedSearchButton3()
+{
+	// TODO: Add your control notification handler code here
+	CString strExe = "select * from SmallBoard_Info where SBI_ATW_STATE=0 or SBI_ATW_STATE=2 order by SBI_SN asc";
+	RunAdoSQL(strExe); //desc
 	AddToList(1);
 }

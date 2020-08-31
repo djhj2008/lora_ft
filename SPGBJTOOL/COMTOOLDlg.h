@@ -23,6 +23,7 @@ enum TESTCASE
 	TEST_STEP_START,
 	TEST_STEP_COUNT,
 	TEST_RTC,
+	TEST_ADC_CALI,
 	TEST_ADC_SAMPLE,
 	TEST_LORA_RXTX,
 	TEST_ATW_STATE,
@@ -123,6 +124,7 @@ public:
 	CString	m_strTxrssi;
 	CString m_strRxrssi;
 	BOOL	m_checkStep;
+	CString m_strAdcCaliValue;
 
 	void LoadSmallTestToolConfig(void);
 	afx_msg void OnEnChangeEdit2();
